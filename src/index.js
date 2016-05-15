@@ -12,6 +12,14 @@ export let Khyron = {
         registry = Immutable.Map();
     },
 
+    assert: function( contractName, subject ) {
+        if ( this.fulfills( contractName, subject ) ) {
+            return true;
+        } else {
+            throw new Error( this.messages.contract( contractName ).failedBy( subject ) );
+        }
+    },
+
     define: function( contractName, evaluator ) {
         if ( typeof contractName !== 'string' ) {
             throw new Error( this.messages.contractNameNotString );
@@ -25,7 +33,7 @@ export let Khyron = {
 
     fulfills: function( contractName, subject ) {
         if ( !registry.has( contractName ) ) {
-            throw new Error( this.messages.contractName( contractName ).notRegistered );
+            throw new Error( this.messages.contract( contractName ).notRegistered );
         }
 
         let evaluator = registry.get( contractName );
@@ -33,8 +41,11 @@ export let Khyron = {
     },
 
     messages: {
-        contractName: function( contractName ) {
+        contract: function( contractName ) {
             return {
+                failedBy: function( subject ) {
+                    return `The following subject fails contract ${contractName}: ${subject}`
+                },
                 notRegistered: `The contract ${contractName} is not in the registry`
             }
         },
