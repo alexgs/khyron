@@ -17,13 +17,17 @@ export let Khyron = {
 
     fulfills: function( contractName, subject ) {
         if ( !registry.has( contractName ) ) {
-            throw new Error( this.messages.contractNameNotRegistered);
+            throw new Error( this.messages.contractName( contractName ).notRegistered );
         }
 
     },
 
     messages: {
-        contractNameNotRegistered: 'The contract name is not in the registry',
+        contractName: function( contractName ) {
+            return {
+                notRegistered: `The contract ${contractName} is not in the registry`
+            }
+        },
         contractNameNotString: 'The contract name must be a string',
         evaluatorNotFunction: 'The evaluator must be a function'
     }

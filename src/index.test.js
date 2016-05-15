@@ -41,9 +41,15 @@ describe( 'Khyron', function() {
     describe( 'has a function `fulfills( contractName, subject )` that', function() {
 
         it( 'throws if `contractName` is not in the registry', function() {
-            expect( function() {
-                Khyron.fulfills( 'noName', { } )
-            } ).to.throw( Error, Khyron.messages.contractNameNotRegistered );
+            // Define a generic test function
+            function fulfillThrows( contractName ) {
+                expect( function() {
+                    Khyron.fulfills( contractName, { } )
+                } ).to.throw( Error, Khyron.messages.contractName( contractName ).notRegistered );
+            }
+
+            // Test different inputs
+            [ undefined, '', 'noContract', null ].forEach( fulfillThrows );
         } );
 
     } );
