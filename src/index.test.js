@@ -11,13 +11,13 @@ import { Khyron } from './index';
 
 let expect = chai.expect;
 
-describe( 'Khyron', function(){
+describe( 'Khyron', function() {
 
-    beforeEach( function(){
+    beforeEach( function() {
         Khyron.__reset();
     } );
 
-    describe( 'has a function `define( contractName, evaluator )` that', function(){
+    describe( 'has a function `define( contractName, evaluator )` that', function() {
 
         it( 'throws if `contractName` is not a string', function() {
             expect( function () {
@@ -36,6 +36,16 @@ describe( 'Khyron', function(){
                 Khyron.define( 'myContract', function () { } )
             } ).to.not.throw()
         } );
+    } );
+
+    describe( 'has a function `fulfills( contractName, subject )` that', function() {
+
+        it( 'throws if `contractName` is not in the registry', function() {
+            expect( function() {
+                Khyron.fulfills( 'noName', { } )
+            } ).to.throw( Error, Khyron.messages.contractNameNotRegistered );
+        } );
+
     } );
 
 } );
