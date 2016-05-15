@@ -3,7 +3,14 @@ import Immutable from 'immutable';
 let registry = Immutable.Map();
 
 export let Khyron = {
-    __reset: function() { },
+
+    __hasContract: function( contractName ) {
+        return registry.has( contractName );
+    },
+
+    __reset: function() {
+        registry = Immutable.Map();
+    },
 
     define: function( contractName, evaluator ) {
         if ( typeof contractName !== 'string' ) {
@@ -13,6 +20,7 @@ export let Khyron = {
             throw new Error( this.messages.evaluatorNotFunction)
         }
 
+        registry = registry.set( contractName, evaluator );
     },
 
     fulfills: function( contractName, subject ) {
@@ -20,6 +28,8 @@ export let Khyron = {
             throw new Error( this.messages.contractName( contractName ).notRegistered );
         }
 
+        let evaluator = registry.get( contractName );
+        return evaluator( subject );
     },
 
     messages: {

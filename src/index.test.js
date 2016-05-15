@@ -7,14 +7,27 @@
  */
 
 import chai from 'chai';
+import dirtyChai from 'dirty-chai';
 import { Khyron } from './index';
 
+chai.use( dirtyChai );
 let expect = chai.expect;
 
 describe( 'Khyron', function() {
 
     beforeEach( function() {
         Khyron.__reset();
+        Khyron.define( 'isArray', Array.isArray );
+    } );
+
+    describe( 'has a function `__reset()` that', function() {
+
+        it( 'resets the registry state *for testing purposes*', function() {
+            expect( Khyron.__hasContract( 'isArray' ) ).to.be.true();
+            Khyron.__reset();
+            expect( Khyron.__hasContract( 'isArray' ) ).to.be.false();
+        } );
+
     } );
 
     describe( 'has a function `define( contractName, evaluator )` that', function() {
@@ -50,6 +63,26 @@ describe( 'Khyron', function() {
 
             // Test different inputs
             [ undefined, '', 'noContract', null ].forEach( fulfillThrows );
+        } );
+
+        it( 'returns TRUE if the subject fulfills the contract', function() {
+            function fulfillsTrue( subject ) {
+                expect( Khyron.fulfills( 'isArray', subject ) ).to.be.true();
+            }
+
+            [
+                [ 1, 2, 3 ],
+                [ 'Array', undefined, null, '' ],
+                [ ]
+            ].forEach( fulfillsTrue );
+        } );
+
+        it( 'returns FALSE if the subject does *not* fulfill the contract', function() {
+            function fulfillsFalse( subject ) {
+                expect( Khyron.fulfills( 'isArray', subject ) ).to.be.false();
+            }
+
+            [ 'Array', undefined, null, '' ].forEach( fulfillsFalse );
         } );
 
     } );
