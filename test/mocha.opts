@@ -1,4 +1,4 @@
 ./lib
---reporter spec
---recursive
 --harmony
+--recursive
+--reporter spec
