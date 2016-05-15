@@ -8,8 +8,12 @@
 
 import chai from 'chai';
 import dirtyChai from 'dirty-chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+
 import { Khyron } from './index';
 
+chai.use( sinonChai );
 chai.use( dirtyChai );
 let expect = chai.expect;
 
@@ -58,7 +62,7 @@ describe( 'Khyron', function() {
             function fulfillThrows( contractName ) {
                 expect( function() {
                     Khyron.fulfills( contractName, { } )
-                } ).to.throw( Error, Khyron.messages.contractName( contractName ).notRegistered );
+                } ).to.throw( Error, Khyron.messages.contract( contractName ).notRegistered );
             }
 
             // Test different inputs
@@ -83,6 +87,36 @@ describe( 'Khyron', function() {
             }
 
             [ 'Array', undefined, null, '' ].forEach( fulfillsFalse );
+        } );
+
+    } );
+
+    describe( 'has a function `assert( contractName, subject )` that', function() {
+
+        it( 'uses the `fulfills` method to check if the subject satisfies the contract', function () {
+            let contract = 'isArray';
+            let array = [ 1, 2, 4 ];
+            sinon.spy( Khyron, 'fulfills' );
+            Khyron.assert( contract, array );
+            expect( Khyron.fulfills ).to.have.been.calledOnce();
+            expect( Khyron.fulfills ).to.have.been.calledWithExactly( contract, array );
+            Khyron.fulfills.restore();
+        } );
+
+        it( 'does *not* throw if the subject satisfies the contract', function() {
+            let contract = 'isArray';
+            let array = [ 1, 2, 4 ];
+            expect( function() {
+                Khyron.assert( contract, array )
+            } ).to.not.throw( Error );
+        } );
+
+        it( 'throws if the subject does *not* satisfy the contract', function() {
+            let contract = 'isArray';
+            let notArray = 27;
+            expect( function() {
+                Khyron.assert( contract, notArray )
+            } ).to.throw( Error, Khyron.messages.contract( contract ).failedBy( notArray ) );
         } );
 
     } );
