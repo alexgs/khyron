@@ -1,4 +1,4 @@
 module.exports = {
     'default': [ 'babel' ],
-    'tower': [ 'babelfish:build' ]
+    'mocha': [ 'mochaTest' ]
 };
