@@ -19,22 +19,23 @@ describe( 'Khyron', function(){
 
     describe( 'has a function `define( contractName, evaluator )` that', function(){
 
-        it( 'throws if `contractName` is not a string', () =>
-            expect( function() {
-                Khyron.define( undefined, function(){ } )
-            } ).to.throw( new Error( Khyron.messages.nameMustBeString ) )
-        );
+        it( 'throws if `contractName` is not a string', function() {
+            expect( function () {
+                Khyron.define( undefined, function () { } )
+            } ).to.throw( Error, Khyron.messages.contractNameNotString )
+        } );
 
-        it( 'throws if `evaluator` is not a function', () =>
-            expect( function() {
+        it( 'throws if `evaluator` is not a function', function() {
+            expect( function () {
                 Khyron.define( 'myContract', 'not a function' )
-            } ).to.throw( new Error( Khyron.messages.evaluatorMustBeFunction ) )
-        );
+            } ).to.throw( Error, Khyron.messages.evaluatorNotFunction )
+        } );
 
-        it( 'does not throw if `contractName` is a string and `evaluator` is a function', () =>
-            expect( function() {
-                Khyron.define( 'myContract', function(){ } )
-            } ).to.not.throw() );
+        it( 'does not throw if `contractName` is a string and `evaluator` is a function', function() {
+            expect( function () {
+                Khyron.define( 'myContract', function () { } )
+            } ).to.not.throw()
+        } );
     } );
-    
+
 } );
