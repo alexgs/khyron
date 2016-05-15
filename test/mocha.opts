@@ -1,0 +1,4 @@
+./lib
+--reporter spec
+--recursive
+--harmony
