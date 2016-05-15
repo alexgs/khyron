@@ -1,6 +1,9 @@
+var path = require( 'path' );
+var sourceDir = path.resolve( __dirname, '..', 'src' );
+
 module.exports = {
     mochaTests: {
-        files: [ 'lib/**/*.js' ],
+        files: [ sourceDir + '**/*.js' ],
         options: {
             spawn: false
         },

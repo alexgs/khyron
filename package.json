@@ -10,9 +10,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "babel": "babel src -d lib",
-    "mocha": "mocha",
-    "test": "npm run babel & npm run mocha"
+    "babel": "babel src -d lib"
   },
   "devDependencies": {
     "babel-cli": "^6.8.0",
