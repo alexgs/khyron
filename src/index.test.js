@@ -87,4 +87,11 @@ describe( 'Khyron', function() {
 
     } );
 
+    describe( 'has a function `assert( contractName, subject )` that', function() {
+        it( 'uses the `fulfills` method to check if the subject satisfies the contract' );
+        it( 'does not throw if the subject satisfies the contract' );
+        it( 'throws if the subject does *not* satisfy the contract' );
+
+    } );
+
 } );
