@@ -2,7 +2,29 @@ import Immutable from 'immutable';
 
 let registry = Immutable.Map();
 
-export let Khyron = {
+export default class Khyron {
+    define() {
+        
+    }
+};
+
+Khyron.messages = {
+    contract: function( contractName ) {
+        return {
+            failedBy: function( subject ) {
+                return `The following subject fails contract ${contractName}: ${subject}`
+            },
+            notRegistered: `The contract ${contractName} is not in the registry`
+        }
+    },
+    contractNameNotString: 'The contract name must be a string',
+    keywordNewRequired: 'Cannot call a class as a function',
+        // This is the standard ES6 error message for calling a class as a function
+    evaluatorNotFunction: 'The evaluator must be a function'
+};
+
+
+export let OldKhyron = {
 
     __hasContract: function( contractName ) {
         return registry.has( contractName );
