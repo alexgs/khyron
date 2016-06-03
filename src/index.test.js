@@ -34,25 +34,44 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    describe.skip( 'has a function `define( contractName, evaluator )` that', function() {
+    describe( 'has a function `define( contractName, evaluator )` that', function() {
 
         it( 'throws if `contractName` is not a string', function() {
             expect( function () {
-                Khyron.define( undefined, function () { } )
+                khyron.define( undefined, function () { } )
+            } ).to.throw( Error, Khyron.messages.contractNameNotString )
+        } );
+
+        it( 'throws if `contractName` is an empty string', function() {
+            expect( function () {
+                khyron.define( '', function () { } )
+            } ).to.throw( Error, Khyron.messages.contractNameNotString )
+        } );
+
+        it( 'throws if `contractName` is a blank string', function() {
+            expect( function () {
+                khyron.define( '', function () { } )
             } ).to.throw( Error, Khyron.messages.contractNameNotString )
         } );
 
         it( 'throws if `evaluator` is not a function', function() {
             expect( function () {
-                Khyron.define( 'myContract', 'not a function' )
+                khyron.define( 'myContract', 'not a function' )
             } ).to.throw( Error, Khyron.messages.evaluatorNotFunction )
         } );
 
         it( 'does not throw if `contractName` is a string and `evaluator` is a function', function() {
             expect( function () {
-                Khyron.define( 'myContract', function () { } )
+                khyron.define( 'myContract', function () { } )
             } ).to.not.throw()
         } );
+
+        it( 'returns the registry, enabling chaining', function() {
+            expect( khyron.define( 'x', Array.isArray ) ).to.equal( khyron );
+            let registry = khyron.define( 'y', Array.isArray );
+            expect( registry === khyron ).to.be.true();
+        } );
+
     } );
 
     describe.skip( 'has a function `fulfills( contractName, subject )` that', function() {

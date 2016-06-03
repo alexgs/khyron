@@ -1,11 +1,31 @@
 import Immutable from 'immutable';
 
-let registry = Immutable.Map();
+let _registry = new WeakMap();
+
+let getRegistry = function( ref ) {
+    return _registry.get( ref );
+};
+
+let setRegistry = function( ref, currentRegistry ) {
+    _registry.set( ref, currentRegistry );
+};
 
 export default class Khyron {
-    define() {
-        
+    constructor() {
+        setRegistry( this, Immutable.Map() );
     }
+
+    define( contractName, evaluator ) {
+        if ( typeof contractName !== 'string' || contractName.trim() === '' ) {
+            throw new Error( Khyron.messages.contractNameNotString );
+        }
+        if ( typeof evaluator !== 'function' ) {
+            throw new Error( Khyron.messages.evaluatorNotFunction)
+        }
+
+        return this;
+    }
+
 };
 
 Khyron.messages = {
@@ -17,9 +37,9 @@ Khyron.messages = {
             notRegistered: `The contract ${contractName} is not in the registry`
         }
     },
-    contractNameNotString: 'The contract name must be a string',
-    keywordNewRequired: 'Cannot call a class as a function',
-        // This is the standard ES6 error message for calling a class as a function
+    contractNameNotString: 'The contract name must be a non-empty string',
+    keywordNewRequired: 'Cannot call a class as a function',    // Standard ES6
+        // error message for calling a class as a function
     evaluatorNotFunction: 'The evaluator must be a function'
 };
 
@@ -27,11 +47,11 @@ Khyron.messages = {
 export let OldKhyron = {
 
     __hasContract: function( contractName ) {
-        return registry.has( contractName );
+        return _registry.has( contractName );
     },
 
     __reset: function() {
-        registry = Immutable.Map();
+        _registry = Immutable.Map();
     },
 
     assert: function( contractName, subject ) {
@@ -50,15 +70,15 @@ export let OldKhyron = {
             throw new Error( this.messages.evaluatorNotFunction)
         }
 
-        registry = registry.set( contractName, evaluator );
+        _registry = _registry.set( contractName, evaluator );
     },
 
     fulfills: function( contractName, subject ) {
-        if ( !registry.has( contractName ) ) {
+        if ( !_registry.has( contractName ) ) {
             throw new Error( this.messages.contract( contractName ).notRegistered );
         }
 
-        let evaluator = registry.get( contractName );
+        let evaluator = _registry.get( contractName );
         return evaluator( subject );
     },
 
