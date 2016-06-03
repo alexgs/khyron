@@ -74,6 +74,13 @@ describe( 'Khyron', function() {
 
     } );
 
+    describe( 'has a function `multidefine( contracts )` that', function() {
+        it( 'throws if `contracts` is not an array of object literals that '
+            + 'each have "name" and "evaluator" properties' );
+        it( 'calls `define( c.name, c.evaluator` ) for each element `c` in `contracts' );
+        it( 'returns the registry, enabling chaining' );
+    } );
+
     describe.skip( 'has a function `fulfills( contractName, subject )` that', function() {
 
         it( 'throws if `contractName` is not in the registry', function() {
