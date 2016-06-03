@@ -75,10 +75,62 @@ describe( 'Khyron', function() {
     } );
 
     describe( 'has a function `multidefine( contracts )` that', function() {
+
         it( 'throws if `contracts` is not an array of object literals that '
-            + 'each have "name" and "evaluator" properties' );
-        it( 'calls `define( c.name, c.evaluator` ) for each element `c` in `contracts' );
-        it( 'returns the registry, enabling chaining' );
+            + 'each have "name" and "evaluator" properties', function() {
+            [ 7, 'abc', undefined, null,
+                [ 123, 'abc' ],
+                { name: 'good object', evaluator: 'but not in an array' },
+                [ { label: 'bad object', type: 'in an array' } ]
+            ].forEach( input => {
+                expect( function() {
+                    khyron.multidefine( input )
+                } ).to.throw( Error, Khyron.messages.invalidMultidefineArg );
+            } );
+        } );
+
+        it( 'calls `define( c.name, c.evaluator )` for each element `c` '
+            + 'in `contracts', function() {
+            sinon.spy( khyron, "define" );
+            let fnDefineCalls = 0;
+            [
+                [
+                    {
+                        name: 'func1',
+                        evaluator: function func1() { return 2; }
+                    }
+                ],
+                [
+                    {
+                        name: 'func2',
+                        evaluator: function func2() { return 'abc'; }
+                    },
+                    {
+                        name: 'func3',
+                        evaluator: function func3() { return 'abc'; }
+                    }
+                ]
+            ].forEach( arg => {
+                khyron.multidefine( arg );
+                arg.forEach( object => {
+                    fnDefineCalls++;
+                    expect( khyron.define ).to.be
+                        .calledWithExactly( object.name, object.evaluator );
+                } );
+            } );
+            expect( khyron.define ).to.have.callCount( fnDefineCalls );
+        } );
+
+        it( 'returns the registry, enabling chaining', function() {
+            expect( khyron.multidefine(
+                [ { name: 'x', evaluator: Array.isArray } ]
+            ) ).to.equal( khyron );
+
+            let registry = khyron.multidefine(
+                [ { name: 'y', evaluator: Array.isArray } ]
+            );
+            expect( registry === khyron ).to.be.true();
+        } );
     } );
 
     describe.skip( 'has a function `fulfills( contractName, subject )` that', function() {

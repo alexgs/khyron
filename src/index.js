@@ -26,6 +26,25 @@ export default class Khyron {
         return this;
     }
 
+    multidefine( contracts ) {
+        if ( !Array.isArray( contracts ) ) {
+            throw new Error( Khyron.messages.invalidMultidefineArg );
+        }
+        let arrayObjectsOk = contracts
+            .map( contract => contract.hasOwnProperty( 'name' )
+                && contract.hasOwnProperty( 'evaluator' ) )
+            .reduce( ( result, value ) => result && value, true );
+        if ( !arrayObjectsOk ) {
+            throw new Error( Khyron.messages.invalidMultidefineArg );
+        }
+
+        contracts.forEach(
+            contract => this.define( contract.name, contract.evaluator )
+        );
+
+        return this;
+    }
+
 };
 
 Khyron.messages = {
@@ -38,9 +57,11 @@ Khyron.messages = {
         }
     },
     contractNameNotString: 'The contract name must be a non-empty string',
+    evaluatorNotFunction: 'The evaluator must be a function',
     keywordNewRequired: 'Cannot call a class as a function',    // Standard ES6
         // error message for calling a class as a function
-    evaluatorNotFunction: 'The evaluator must be a function'
+    invalidMultidefineArg: 'The argument to `multidefine` MUST be an array of '
+        + 'object literals that each have "name" and "evaluator" properties'
 };
 
 
