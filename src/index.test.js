@@ -272,6 +272,33 @@ describe( 'Khyron', function() {
 
         });
 
+        context( '(when `validator` is a function)', function () {
+
+            it( 'returns the result of the validator called on args', function() {
+                function isLength2() {
+                    return arguments.length === 2;
+                }
+
+                function isLength3() {
+                    return arguments.length === 3;
+                }
+
+                let testArgs = [ 'a', 2 ];
+                expect( khyron.multifulfills( isLength2, testArgs ) ).to.be.true();
+                expect( khyron.multifulfills( isLength3, testArgs ) ).to.be.false();
+            } );
+
+            it( 'calls validator with `khyron` as the context', function() {
+                function contextCheck() {
+                    expect( this ).to.equal( khyron );
+                    expect( this === khyron ).to.be.true();
+                }
+
+                khyron.multifulfills( contextCheck, [ 1, 2 ] );
+            } );
+
+        } );
+
     } );
 
 } );

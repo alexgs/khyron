@@ -88,6 +88,7 @@ export default class Khyron {
     }
 
     multifulfills( validator, args ) {
+        // --- ARGUMENT VALIDATION ---
         let isValidatorValid = false;
         if ( typeof validator === 'string' ) {
             isValidatorValid = true;
@@ -106,6 +107,10 @@ export default class Khyron {
             throw new Error( Khyron.messages.argsMustBeArrayLike );
         }
 
+        // --- FUNCTION LOGIC ---
+        if ( typeof validator === 'function' ) {
+            return validator.apply( this, args );
+        }
     }
 
 };
