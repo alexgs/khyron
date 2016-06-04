@@ -16,6 +16,8 @@ export default class Khyron {
     }
 
     define( contractName, evaluator ) {
+        contractName = ( contractName && typeof contractName === 'string')
+            ? contractName.trim() : contractName;
         if ( typeof contractName !== 'string' || contractName.trim() === '' ) {
             throw new Error( Khyron.messages.contractNameNotString );
         }
@@ -23,7 +25,22 @@ export default class Khyron {
             throw new Error( Khyron.messages.evaluatorNotFunction)
         }
 
+        let registry = getRegistry( this );
+        registry = registry.set( contractName, evaluator );
+        setRegistry( this, registry );
         return this;
+    }
+
+    fulfills( contractName, subject ) {
+        let registry = getRegistry( this );
+        contractName = ( contractName && typeof contractName === 'string')
+            ? contractName.trim() : contractName;
+        if ( !registry.has( contractName ) ) {
+            throw new Error( Khyron.messages.contract( contractName ).notRegistered );
+        }
+
+        let evaluator = registry.get( contractName );
+        return evaluator( subject );
     }
 
     multidefine( contracts ) {
@@ -81,38 +98,6 @@ export let OldKhyron = {
         } else {
             throw new Error( this.messages.contract( contractName ).failedBy( subject ) );
         }
-    },
-
-    define: function( contractName, evaluator ) {
-        if ( typeof contractName !== 'string' ) {
-            throw new Error( this.messages.contractNameNotString );
-        }
-        if ( typeof evaluator !== 'function' ) {
-            throw new Error( this.messages.evaluatorNotFunction)
-        }
-
-        _registry = _registry.set( contractName, evaluator );
-    },
-
-    fulfills: function( contractName, subject ) {
-        if ( !_registry.has( contractName ) ) {
-            throw new Error( this.messages.contract( contractName ).notRegistered );
-        }
-
-        let evaluator = _registry.get( contractName );
-        return evaluator( subject );
-    },
-
-    messages: {
-        contract: function( contractName ) {
-            return {
-                failedBy: function( subject ) {
-                    return `The following subject fails contract ${contractName}: ${subject}`
-                },
-                notRegistered: `The contract ${contractName} is not in the registry`
-            }
-        },
-        contractNameNotString: 'The contract name must be a string',
-        evaluatorNotFunction: 'The evaluator must be a function'
     }
+
 };

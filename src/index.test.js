@@ -133,13 +133,13 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    describe.skip( 'has a function `fulfills( contractName, subject )` that', function() {
+    describe( 'has a function `fulfills( contractName, subject )` that', function() {
 
         it( 'throws if `contractName` is not in the registry', function() {
             // Define a generic test function
             function fulfillThrows( contractName ) {
                 expect( function() {
-                    Khyron.fulfills( contractName, { } )
+                    khyron.fulfills( contractName, { } )
                 } ).to.throw( Error, Khyron.messages.contract( contractName ).notRegistered );
             }
 
@@ -149,7 +149,7 @@ describe( 'Khyron', function() {
 
         it( 'returns TRUE if the subject fulfills the contract', function() {
             function fulfillsTrue( subject ) {
-                expect( Khyron.fulfills( 'isArray', subject ) ).to.be.true();
+                expect( khyron.fulfills( arrayContract, subject ) ).to.be.true();
             }
 
             [
@@ -161,10 +161,15 @@ describe( 'Khyron', function() {
 
         it( 'returns FALSE if the subject does *not* fulfill the contract', function() {
             function fulfillsFalse( subject ) {
-                expect( Khyron.fulfills( 'isArray', subject ) ).to.be.false();
+                expect( khyron.fulfills( arrayContract, subject ) ).to.be.false();
             }
 
             [ 'Array', undefined, null, '' ].forEach( fulfillsFalse );
+        } );
+
+        it( 'trims the contract name before using it', function() {
+            let contractName = '  ' + arrayContract + '\t';
+            expect( khyron.fulfills( contractName, [ 1, 2, 3 ] ) ).to.be.true();
         } );
 
     } );
