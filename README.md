@@ -10,4 +10,4 @@ Khyron is a contract registry and run-time contract enforcer. It brings to the b
 
 Engineers coming from strongly or statically typed languages such as Java and C# are probably familiar with the idea of a contract between a function and its callers. Khyron brings this idea to JavaScript without undermining its dynamic types and performance.
  
-The code in Khyron is adapted from Chapter 16 of _Reliable JavaScript: How to Code Safely in the World's Most Dangerous Language_ by Seth Richards and Lawrence Spencer (ISBN 9781119028727).
+The code in Khyron is adapted from Chapters 16 and 17 of _Reliable JavaScript: How to Code Safely in the World's Most Dangerous Language_ by Seth Richards and Lawrence Spencer (ISBN 9781119028727).
