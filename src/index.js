@@ -51,7 +51,12 @@ export default class Khyron {
         }
 
         let evaluator = registry.get( contractName );
-        return evaluator( subject );
+        let result = evaluator( subject );
+        if ( typeof result === 'boolean' ) {
+            return result;
+        } else {
+            throw new Error( Khyron.messages.contract( contractName ).evalNotBoolean );
+        }
     }
 
     multidefine( contracts ) {
@@ -82,6 +87,7 @@ Khyron.messages = {
             failedBy: function( subject ) {
                 return `The following subject fails contract ${contractName}: ${subject}`
             },
+            evalNotBoolean: `The evaluator for ${contractName} returned a non-boolean value`,
             notRegistered: `The contract ${contractName} is not in the registry`
         }
     },
@@ -91,18 +97,4 @@ Khyron.messages = {
         // error message for calling a class as a function
     invalidMultidefineArg: 'The argument to `multidefine` MUST be an array of '
         + 'object literals that each have "name" and "evaluator" properties'
-};
-
-
-export let OldKhyron = {
-
-    __hasContract: function( contractName ) {
-        return _registry.has( contractName );
-    },
-
-    __reset: function() {
-        _registry = Immutable.Map();
-    },
-
-
 };

@@ -172,6 +172,15 @@ describe( 'Khyron', function() {
             expect( khyron.fulfills( contractName, [ 1, 2, 3 ] ) ).to.be.true();
         } );
 
+        it( 'throws if the evaluator does not return a boolean value', function() {
+            let badContactName = 'big-bad';
+            let badEval = function() { return 2; };
+            khyron.define( badContactName, badEval );
+            expect( function() {
+                khyron.fulfills( badContactName, fibArray );
+            } ).to.throw( Error, Khyron.messages.contract( badContactName ).evalNotBoolean );
+        } );
+
     } );
 
     describe( 'has a function `assert( contractName, subject )` that', function() {
