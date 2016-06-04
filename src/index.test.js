@@ -238,10 +238,35 @@ describe( 'Khyron', function() {
                     { 'an': 0, 'object': 1 }
                 ].forEach( expectThrow );
 
-                [
-                    'blah blah',
+                [ 'blah blah',
                     [ 'four', 'score', 'and', 'seven', 'years', 'ago' ],
                     function() { return 2; }
+                ].forEach( expectNoThrow );
+            } );
+
+            it( 'throws if `args` is not array-like', function() {
+                function expectThrow( badArgs ) {
+                    expect( function() {
+                        khyron.multifulfills( function() {}, badArgs )
+                    } ).to.throw( Error, Khyron.messages.argsMustBeArrayLike );
+                }
+
+                function expectNoThrow( goodArgs ) {
+                    expect( function() {
+                        khyron.multifulfills( function() {}, goodArgs )
+                    } ).to.not.throw();
+                }
+
+                [ undefined,
+                    null,
+                    123,
+                    function(){},
+                    'a string',
+                    { 'an': 0, 'object': 1 }
+                ].forEach( expectThrow );
+
+                [ arguments,
+                    [ 1, 2, 4 ]
                 ].forEach( expectNoThrow );
             } );
 

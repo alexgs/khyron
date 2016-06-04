@@ -10,6 +10,14 @@ let setRegistry = function( ref, currentRegistry ) {
     _registry.set( ref, currentRegistry );
 };
 
+let isArrayLike = function( arg ) {
+    return ( arg
+        && ( typeof arg === 'object' )
+        && arg.hasOwnProperty( 'length' )
+        && ( typeof arg.length === 'number' )
+    );
+};
+
 export default class Khyron {
     constructor() {
         setRegistry( this, Immutable.Map() );
@@ -94,11 +102,16 @@ export default class Khyron {
             throw new Error( Khyron.messages.validatorIsInvalid );
         }
 
+        if ( !Array.isArray( args ) && !isArrayLike( args ) ) {
+            throw new Error( Khyron.messages.argsMustBeArrayLike );
+        }
+
     }
 
 };
 
 Khyron.messages = {
+    argsMustBeArrayLike: 'The `args` argument must be an Array-like object',
     contract: function( contractName ) {
         return {
             failedBy: function( subject ) {
@@ -114,6 +127,6 @@ Khyron.messages = {
         // error message for calling a class as a function
     invalidMultidefineArg: 'The argument to `multidefine` MUST be an array of '
         + 'object literals that each have "name" and "evaluator" properties',
-    validatorIsInvalid: 'The validator argument must be a string, an array of '
+    validatorIsInvalid: 'The `validator` argument must be a string, an array of '
         + 'strings, or a function'
 };
