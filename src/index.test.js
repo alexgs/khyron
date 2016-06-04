@@ -174,32 +174,32 @@ describe( 'Khyron', function() {
 
     } );
 
-    describe.skip( 'has a function `assert( contractName, subject )` that', function() {
+    describe( 'has a function `assert( contractName, subject )` that', function() {
 
         it( 'uses the `fulfills` method to check if the subject satisfies the contract', function () {
-            let contract = 'isArray';
-            let array = [ 1, 2, 4 ];
-            sinon.spy( Khyron, 'fulfills' );
-            Khyron.assert( contract, array );
-            expect( Khyron.fulfills ).to.have.been.calledOnce();
-            expect( Khyron.fulfills ).to.have.been.calledWithExactly( contract, array );
-            Khyron.fulfills.restore();
+            sinon.spy( khyron, 'fulfills' );
+            khyron.assert( arrayContract, fibArray );
+            expect( khyron.fulfills ).to.have.been.calledOnce();
+            expect( khyron.fulfills ).to.have.been.calledWithExactly( arrayContract, fibArray );
         } );
 
         it( 'does *not* throw if the subject satisfies the contract', function() {
-            let contract = 'isArray';
-            let array = [ 1, 2, 4 ];
             expect( function() {
-                Khyron.assert( contract, array )
+                khyron.assert( arrayContract, fibArray )
             } ).to.not.throw( Error );
         } );
 
         it( 'throws if the subject does *not* satisfy the contract', function() {
-            let contract = 'isArray';
             let notArray = 27;
             expect( function() {
-                Khyron.assert( contract, notArray )
-            } ).to.throw( Error, Khyron.messages.contract( contract ).failedBy( notArray ) );
+                khyron.assert( arrayContract, notArray )
+            } ).to.throw( Error, Khyron.messages.contract( arrayContract ).failedBy( notArray ) );
+        } );
+
+        it( 'returns the registry, enabling chaining', function() {
+            expect( khyron.assert( arrayContract, fibArray ) ).to.equal( khyron );
+            let registry = khyron.assert( arrayContract, fibArray );
+            expect( registry === khyron ).to.be.true();
         } );
 
     } );

@@ -15,6 +15,15 @@ export default class Khyron {
         setRegistry( this, Immutable.Map() );
     }
 
+    assert( contractName, subject ) {
+        if ( this.fulfills( contractName, subject ) ) {
+            // return the current object, enabling chaining
+            return this;
+        } else {
+            throw new Error( Khyron.messages.contract( contractName ).failedBy( subject ) );
+        }
+    }
+
     define( contractName, evaluator ) {
         contractName = ( contractName && typeof contractName === 'string')
             ? contractName.trim() : contractName;
@@ -28,6 +37,8 @@ export default class Khyron {
         let registry = getRegistry( this );
         registry = registry.set( contractName, evaluator );
         setRegistry( this, registry );
+
+        // return the registry, enabling chaining
         return this;
     }
 
@@ -59,6 +70,7 @@ export default class Khyron {
             contract => this.define( contract.name, contract.evaluator )
         );
 
+        // return the registry, enabling chaining
         return this;
     }
 
@@ -92,12 +104,5 @@ export let OldKhyron = {
         _registry = Immutable.Map();
     },
 
-    assert: function( contractName, subject ) {
-        if ( this.fulfills( contractName, subject ) ) {
-            return true;
-        } else {
-            throw new Error( this.messages.contract( contractName ).failedBy( subject ) );
-        }
-    }
 
 };
