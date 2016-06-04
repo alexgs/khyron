@@ -213,4 +213,40 @@ describe( 'Khyron', function() {
 
     } );
 
+    describe( 'has a function `multifulfills( validator, args )` that', function() {
+
+        context( '(when validating arguments)', function() {
+
+            it( 'throws if `validator` is not a string, an array of strings, '
+                + 'or a function', function() {
+                function expectThrow( badValidator ) {
+                    expect( function() {
+                        khyron.multifulfills( badValidator, [ ] );
+                    } ).to.throw( Error, Khyron.messages.validatorIsInvalid );
+                }
+
+                function expectNoThrow( goodValidator ) {
+                    expect( function() {
+                        khyron.multifulfills( goodValidator, [ ] );
+                    } ).to.not.throw();
+                }
+
+                [ undefined,
+                    null,
+                    123,
+                    [ 'xyz', 0 ],
+                    { 'an': 0, 'object': 1 }
+                ].forEach( expectThrow );
+
+                [
+                    'blah blah',
+                    [ 'four', 'score', 'and', 'seven', 'years', 'ago' ],
+                    function() { return 2; }
+                ].forEach( expectNoThrow );
+            } );
+
+        });
+
+    } );
+
 } );

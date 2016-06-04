@@ -79,6 +79,23 @@ export default class Khyron {
         return this;
     }
 
+    multifulfills( validator, args ) {
+        let isValidatorValid = false;
+        if ( typeof validator === 'string' ) {
+            isValidatorValid = true;
+        } else if ( typeof validator === 'function' ) {
+            isValidatorValid = true;
+        } else if ( Array.isArray( validator ) ) {
+            isValidatorValid = validator.map( value => ( typeof value === 'string' ) )
+                .reduce( ( result, current ) => result && current, true );
+        }
+
+        if ( !isValidatorValid ) {
+            throw new Error( Khyron.messages.validatorIsInvalid );
+        }
+
+    }
+
 };
 
 Khyron.messages = {
@@ -96,5 +113,7 @@ Khyron.messages = {
     keywordNewRequired: 'Cannot call a class as a function',    // Standard ES6
         // error message for calling a class as a function
     invalidMultidefineArg: 'The argument to `multidefine` MUST be an array of '
-        + 'object literals that each have "name" and "evaluator" properties'
+        + 'object literals that each have "name" and "evaluator" properties',
+    validatorIsInvalid: 'The validator argument must be a string, an array of '
+        + 'strings, or a function'
 };
