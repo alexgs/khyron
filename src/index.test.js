@@ -225,20 +225,23 @@ describe( 'Khyron', function() {
                     } ).to.throw( Error, Khyron.messages.validatorIsInvalid );
                 }
 
-                function expectNoThrow( goodValidator ) {
-                    expect( function() {
-                        khyron.multifulfills( goodValidator, [ ] );
-                    } ).to.not.throw();
-                }
-
                 [ undefined,
                     null,
                     123,
                     [ 'xyz', 0 ],
                     { 'an': 0, 'object': 1 }
                 ].forEach( expectThrow );
+            } );
 
-                [ 'blah blah',
+            it( 'does not throw if `validator` is a string, an array of strings, '
+                + 'or a function', function() {
+                function expectNoThrow( goodValidator ) {
+                    expect( function() {
+                        khyron.multifulfills( goodValidator, [ ] );
+                    } ).to.not.throw();
+                }
+
+                [ arrayContract,
                     [ 'four', 'score', 'and', 'seven', 'years', 'ago' ],
                     function() { return 2; }
                 ].forEach( expectNoThrow );
@@ -251,12 +254,6 @@ describe( 'Khyron', function() {
                     } ).to.throw( Error, Khyron.messages.argsMustBeArrayLike );
                 }
 
-                function expectNoThrow( goodArgs ) {
-                    expect( function() {
-                        khyron.multifulfills( function() {}, goodArgs )
-                    } ).to.not.throw();
-                }
-
                 [ undefined,
                     null,
                     123,
@@ -264,6 +261,14 @@ describe( 'Khyron', function() {
                     'a string',
                     { 'an': 0, 'object': 1 }
                 ].forEach( expectThrow );
+            } );
+
+            it( 'does not throw if `args` is array-like', function() {
+                function expectNoThrow( goodArgs ) {
+                    expect( function() {
+                        khyron.multifulfills( function() {}, goodArgs )
+                    } ).to.not.throw();
+                }
 
                 [ arguments,
                     [ 1, 2, 4 ]
@@ -272,7 +277,7 @@ describe( 'Khyron', function() {
 
         });
 
-        context( '(when `validator` is a function)', function () {
+        context( '(when `validator` is a function)', function() {
 
             it( 'returns the result of the validator called on args', function() {
                 function isLength2() {
@@ -296,6 +301,23 @@ describe( 'Khyron', function() {
 
                 khyron.multifulfills( contextCheck, [ 1, 2 ] );
             } );
+
+        } );
+
+        context( '(when `validator` is a string)', function() {
+
+            it( 'returns the result of `fulfills` called with the named '
+                + 'validator and provided arguments', function() {
+                let args = [ 'a', 'b' ];
+                let returnValue = 'This is a **random** string, yo!';
+                sinon.stub( khyron, 'fulfills' ).returns( returnValue );
+
+                expect( khyron.multifulfills( arrayContract, args ) ).to
+                    .equal( returnValue );
+                expect( khyron.fulfills ).to.have.been.calledOnce();
+                expect( khyron.fulfills ).to.have.been
+                    .calledWithExactly( arrayContract, args );
+                } );
 
         } );
 

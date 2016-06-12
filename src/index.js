@@ -108,6 +108,10 @@ export default class Khyron {
         }
 
         // --- FUNCTION LOGIC ---
+        if ( typeof validator === 'string' ) {
+            return this.fulfills( validator, args );
+        }
+
         if ( typeof validator === 'function' ) {
             return validator.apply( this, args );
         }
