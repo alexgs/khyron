@@ -242,7 +242,7 @@ describe( 'Khyron', function() {
                 }
 
                 [ arrayContract,
-                    [ 'four', 'score', 'and', 'seven', 'years', 'ago' ],
+                    [ arrayContract, arrayContract, arrayContract, arrayContract ],
                     function() { return 2; }
                 ].forEach( expectNoThrow );
             } );
@@ -318,6 +318,96 @@ describe( 'Khyron', function() {
                 expect( khyron.fulfills ).to.have.been
                     .calledWithExactly( arrayContract, args );
                 } );
+
+        } );
+
+        context( '(when `validator` is an array)', function() {
+
+            function passOrFail( contractName, arg ) {
+                // let result = ( contractName === 'passes' );
+                // console.log( `Contract name is ${contractName} and result is ${result}` );
+                // return result;
+                return ( contractName === 'passes' );
+            }
+
+            it( 'returns true if the array is empty', function() {
+                expect( khyron.multifulfills( [], [ 1, 2, 3 ] ) ).to.be.true();
+            } );
+
+            it( 'returns true if validator is a single-element array whose '
+                + 'contracts all pass', function() {
+                let validator = [ 'passes,passes,passes' ];
+                let args = [ 1, 2, 3 ];
+                sinon.stub( khyron, 'fulfills', passOrFail );
+
+                expect( khyron.multifulfills( validator, args ) ).to.be.true();
+                expect( khyron.fulfills ).to.have.been.calledThrice();
+                expect( khyron.fulfills ).to.have.been
+                    .calledWithExactly( 'passes', 1 );
+                expect( khyron.fulfills ).to.have.been
+                    .calledWithExactly( 'passes', 2 );
+                expect( khyron.fulfills ).to.have.been
+                    .calledWithExactly( 'passes', 3 );
+            } );
+
+            // The _Reliable JavaScript_ book has a test here called "[it]
+            // evaluates no more contracts than necessary in a single-element
+            // array." However, their code uses a for loop, while I prefer a
+            // more functional map/reduce approach. Thus, this test fails on
+            // my code, but it's also kind of pointless.
+
+            it( 'returns false if validator is a single-element array that '
+                + 'contains one failing contract', function() {
+                let validator = [ 'passes,fails,passes' ];
+                let args = [ 1, 2, 3 ];
+                sinon.stub( khyron, 'fulfills', passOrFail );
+                expect( khyron.multifulfills( validator,args ) ).to.be.false();
+            } );
+
+            it( 'ignores spaces surrounding commas in validator', function() {
+                let validator=['a, b, c ,   d'];
+                let args = [ 1, 2, 3, 4 ];
+                sinon.stub( khyron, 'fulfills' ).returns( true );
+                khyron.multifulfills( validator,args );
+
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'b', 2 );
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'c', 3 );
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'd', 4 );
+            } );
+
+            it( 'ignores extra commas in a validator element', function() {
+                let validator=['a,, , d'];
+                let args = [ 1, 2, 3, 4 ];
+                sinon.stub( khyron, 'fulfills' ).returns( true );
+                khyron.multifulfills( validator,args );
+
+                expect( khyron.fulfills ).to.have.been.calledTwice();
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'd', 4 );
+            } );
+
+            it( 'ignores extra arguments when evaluating a comma-separated string '
+                + 'of contract names', function() {
+                let validator=[ 'a, b' ];
+                let args = [ 1, 2, 3, 4 ];
+                sinon.stub( khyron, 'fulfills' ).returns( true );
+                khyron.multifulfills( validator,args );
+
+                expect( khyron.fulfills ).to.have.been.calledTwice();
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
+                expect( khyron.fulfills ).to.have.been.calledWithExactly( 'b', 2 );
+            } );
+
+            it( 'allows args to fulfill any one of the elements in the array of '
+                + 'comma-separated strings of contract names', function() {
+                let validator = [ 'passes,fails', 'passes,passes', 'fails,fails' ];
+                let args = [ 1, 2 ];
+                sinon.stub( khyron, 'fulfills', passOrFail );
+
+                expect( khyron.multifulfills( validator, args) ).to.be.true();
+                expect( khyron.fulfills ).to.have.callCount( 6 );
+            } );
 
         } );
 

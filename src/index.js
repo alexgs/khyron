@@ -18,6 +18,19 @@ let isArrayLike = function( arg ) {
     );
 };
 
+let elementValidator = function( element, args, validationFunc ) {
+    return element.split( ',' )
+        .map( contract => contract.trim() )
+        .map( ( contract, index ) => {
+            if ( contract.length > 0 ) {
+                return validationFunc( contract, args[ index ] )
+            } else {
+                return true;
+            }
+        } )
+        .reduce( ( previous, current ) => previous && current, true );
+};
+
 export default class Khyron {
     constructor() {
         setRegistry( this, Immutable.Map() );
@@ -114,6 +127,17 @@ export default class Khyron {
 
         if ( typeof validator === 'function' ) {
             return validator.apply( this, args );
+        }
+
+        if ( Array.isArray( validator ) ) {
+            if ( validator.length === 0 ) {
+                return true;
+            } else {
+                let fulfills = this.fulfills.bind( this );
+                return validator
+                    .map( element => elementValidator( element, args, fulfills ) )
+                    .reduce( ( previous, current ) => previous || current, false );
+            }
         }
     }
 
