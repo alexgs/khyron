@@ -29,40 +29,40 @@ describe( 'Khyron', function() {
 
     describe( 'has a constructor that', function() {
         it( 'requires the use of `new`', function() {
-            expect( function() { Khyron() } ).to
-                .throw( TypeError, Khyron.messages.keywordNewRequired );
+            expect( function() { Khyron() } )
+                .to.throw( TypeError, Khyron.messages.keywordNewRequired );
         } );
     } );
 
     describe( 'has a function `define( contractName, evaluator )` that', function() {
 
         it( 'throws if `contractName` is not a string', function() {
-            expect( function () {
-                khyron.define( undefined, function () { } )
+            expect( function() {
+                khyron.define( undefined, function() { } );
             } ).to.throw( Error, Khyron.messages.contractNameNotString )
         } );
 
         it( 'throws if `contractName` is an empty string', function() {
-            expect( function () {
-                khyron.define( '', function () { } )
+            expect( function() {
+                khyron.define( '', function() { } );
             } ).to.throw( Error, Khyron.messages.contractNameNotString )
         } );
 
         it( 'throws if `contractName` is a blank string', function() {
-            expect( function () {
-                khyron.define( '', function () { } )
+            expect( function() {
+                khyron.define( '', function() { } );
             } ).to.throw( Error, Khyron.messages.contractNameNotString )
         } );
 
         it( 'throws if `evaluator` is not a function', function() {
-            expect( function () {
-                khyron.define( 'myContract', 'not a function' )
+            expect( function() {
+                khyron.define( 'myContract', 'not a function' );
             } ).to.throw( Error, Khyron.messages.evaluatorNotFunction )
         } );
 
         it( 'does not throw if `contractName` is a string and `evaluator` is a function', function() {
-            expect( function () {
-                khyron.define( 'myContract', function () { } )
+            expect( function() {
+                khyron.define( 'myContract', function() { } );
             } ).to.not.throw()
         } );
 
@@ -139,7 +139,7 @@ describe( 'Khyron', function() {
             // Define a generic test function
             function fulfillThrows( contractName ) {
                 expect( function() {
-                    khyron.fulfills( contractName, { } )
+                    khyron.fulfills( contractName, { } );
                 } ).to.throw( Error, Khyron.messages.contract( contractName ).notRegistered );
             }
 
@@ -185,7 +185,7 @@ describe( 'Khyron', function() {
 
     describe( 'has a function `assert( contractName, subject )` that', function() {
 
-        it( 'uses the `fulfills` method to check if the subject satisfies the contract', function () {
+        it( 'uses the `fulfills` method to check if the subject satisfies the contract', function() {
             sinon.spy( khyron, 'fulfills' );
             khyron.assert( arrayContract, fibArray );
             expect( khyron.fulfills ).to.have.been.calledOnce();
@@ -221,7 +221,7 @@ describe( 'Khyron', function() {
                 + 'or a function', function() {
                 function expectThrow( badValidator ) {
                     expect( function() {
-                        khyron.multifulfills( badValidator, [ ] );
+                        khyron.multifulfills( badValidator, [] );
                     } ).to.throw( Error, Khyron.messages.validatorIsInvalid );
                 }
 
@@ -237,7 +237,7 @@ describe( 'Khyron', function() {
                 + 'or a function', function() {
                 function expectNoThrow( goodValidator ) {
                     expect( function() {
-                        khyron.multifulfills( goodValidator, [ ] );
+                        khyron.multifulfills( goodValidator, [] );
                     } ).to.not.throw();
                 }
 
@@ -250,14 +250,14 @@ describe( 'Khyron', function() {
             it( 'throws if `args` is not array-like', function() {
                 function expectThrow( badArgs ) {
                     expect( function() {
-                        khyron.multifulfills( function() {}, badArgs )
+                        khyron.multifulfills( function() { }, badArgs )
                     } ).to.throw( Error, Khyron.messages.argsMustBeArrayLike );
                 }
 
                 [ undefined,
                     null,
                     123,
-                    function(){},
+                    function() { },
                     'a string',
                     { 'an': 0, 'object': 1 }
                 ].forEach( expectThrow );
@@ -266,7 +266,7 @@ describe( 'Khyron', function() {
             it( 'does not throw if `args` is array-like', function() {
                 function expectNoThrow( goodArgs ) {
                     expect( function() {
-                        khyron.multifulfills( function() {}, goodArgs )
+                        khyron.multifulfills( function() { }, goodArgs )
                     } ).to.not.throw();
                 }
 
@@ -275,7 +275,7 @@ describe( 'Khyron', function() {
                 ].forEach( expectNoThrow );
             } );
 
-        });
+        } );
 
         context( '(when `validator` is a function)', function() {
 
@@ -317,7 +317,7 @@ describe( 'Khyron', function() {
                 expect( khyron.fulfills ).to.have.been.calledOnce();
                 expect( khyron.fulfills ).to.have.been
                     .calledWithExactly( arrayContract, args );
-                } );
+            } );
 
         } );
 
@@ -361,14 +361,14 @@ describe( 'Khyron', function() {
                 let validator = [ 'passes,fails,passes' ];
                 let args = [ 1, 2, 3 ];
                 sinon.stub( khyron, 'fulfills', passOrFail );
-                expect( khyron.multifulfills( validator,args ) ).to.be.false();
+                expect( khyron.multifulfills( validator, args ) ).to.be.false();
             } );
 
             it( 'ignores spaces surrounding commas in validator', function() {
-                let validator=['a, b, c ,   d'];
+                let validator = [ 'a, b, c ,   d' ];
                 let args = [ 1, 2, 3, 4 ];
                 sinon.stub( khyron, 'fulfills' ).returns( true );
-                khyron.multifulfills( validator,args );
+                khyron.multifulfills( validator, args );
 
                 expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
                 expect( khyron.fulfills ).to.have.been.calledWithExactly( 'b', 2 );
@@ -377,10 +377,10 @@ describe( 'Khyron', function() {
             } );
 
             it( 'ignores extra commas in a validator element', function() {
-                let validator=['a,, , d'];
+                let validator = [ 'a,, , d' ];
                 let args = [ 1, 2, 3, 4 ];
                 sinon.stub( khyron, 'fulfills' ).returns( true );
-                khyron.multifulfills( validator,args );
+                khyron.multifulfills( validator, args );
 
                 expect( khyron.fulfills ).to.have.been.calledTwice();
                 expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
@@ -389,10 +389,10 @@ describe( 'Khyron', function() {
 
             it( 'ignores extra arguments when evaluating a comma-separated string '
                 + 'of contract names', function() {
-                let validator=[ 'a, b' ];
+                let validator = [ 'a, b' ];
                 let args = [ 1, 2, 3, 4 ];
                 sinon.stub( khyron, 'fulfills' ).returns( true );
-                khyron.multifulfills( validator,args );
+                khyron.multifulfills( validator, args );
 
                 expect( khyron.fulfills ).to.have.been.calledTwice();
                 expect( khyron.fulfills ).to.have.been.calledWithExactly( 'a', 1 );
@@ -405,12 +405,35 @@ describe( 'Khyron', function() {
                 let args = [ 1, 2 ];
                 sinon.stub( khyron, 'fulfills', passOrFail );
 
-                expect( khyron.multifulfills( validator, args) ).to.be.true();
+                expect( khyron.multifulfills( validator, args ) ).to.be.true();
                 expect( khyron.fulfills ).to.have.callCount( 6 );
             } );
 
         } );
 
+    } );
+
+    describe( 'has a function `attachArgumentValidator( targetObject, functionName, '
+        + 'validator )` that', function() {
+
+        context( '(when validating its own arguments)', function() {
+            it( 'throws if targetObject is not an object' );
+            it( 'throws if functionName is not a string' );
+            it( 'throws if validator is not a string, an array of strings, or a function' );
+        } );
+
+        context( '("aspect functionality")', function() {
+            it( 'calls registry.multipleAssert(validator,arguments)' );
+            it( 'allows the function to execute and return normally' );
+            it( 'returns the registry, enabling chaining' );
+        } );
+
+    } );
+
+    describe( 'has a function `attachReturnValidator( targetObject, functionName, '
+        + 'validator )` that', function() {
+        // ContractRegistry_tests.js l:418
+        it( 'returns the registry, enabling chaining' );
     } );
 
 } );

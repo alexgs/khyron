@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="All Tests" pattern="file[khyron]:src//*.test.js" />
+</component>
