@@ -11,7 +11,7 @@ import dirtyChai from 'dirty-chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-import Khyron from './index';
+import Khyron from '../src/index';
 
 chai.use( sinonChai );
 chai.use( dirtyChai );

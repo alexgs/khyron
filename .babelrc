@@ -1,4 +1,11 @@
 {
-    "presets": [ "es2015" ],
-    "sourceMaps": "inline"
+    "presets": [
+        "stage-3"
+    ],
+    "plugins": [
+        "syntax-trailing-function-commas",
+        "transform-async-to-generator",
+        "transform-es2015-modules-commonjs",
+        "transform-exponentiation-operator"
+    ]
 }
