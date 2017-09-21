@@ -16,9 +16,30 @@ let expect = chai.expect;
 
 // These tests verify proper API behavior
 describe( 'Khyron', function() {
+    const plainObject = {
+        name: 'plain',
+        number: 0
+    };
+    const notStrings = [
+        plainObject,
+        0,
+        true,
+        undefined,
+        null,
+        3.14159,
+        [ 'a', 2, false ],
+        () => plainObject
+    ];
 
     context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
-        it( 'requires a string for the `schemaName` parameter' );
+        it( 'requires a string for the `schemaName` parameter', function() {
+            notStrings.forEach( function( value ) {
+                expect( function() {
+                    khyron.define( value, plainObject );
+                } ).to.throw( Error, khyron.messages.argSchemaNameNotString( value ) );
+            } );
+        } );
+
         it( 'requires a plain object for the `schemaDefinition` parameter' );
         it( 'throws an error if the schema name is already in the registry' );
     } );

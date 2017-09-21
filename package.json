@@ -38,6 +38,7 @@
     "types-dirty-chai": "git+https://github.com/philgs/types-dirty-chai.git#67e1a89610"
   },
   "dependencies": {
-    "immutable": "^3.8.1"
+    "immutable": "^3.8.1",
+    "lodash": "^4.17.4"
   }
 }
