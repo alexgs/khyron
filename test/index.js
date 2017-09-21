@@ -43,6 +43,7 @@ describe( 'Khyron', function() {
     ];
 
     context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
+
         it( 'requires a string for the `schemaName` parameter', function() {
             notStrings.forEach( function( value ) {
                 expect( function() {
@@ -59,7 +60,16 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        it( 'throws an error if the schema name is already in the registry' );
+        it( 'throws an error if the schema name is already in the registry', function() {
+            const name = 'my-awesome-schema';
+            khyron.define( name, plainObject );
+            expect( function() {
+                khyron.define( name, plainObject );
+            } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
+        } );
+
+        it( 'throws an error if the `schemaDefinition` argument is not a valid JSON schema' );
+        it( 'throws an error if the `schemaDefinition` argument does not compile to a validator function' );
     } );
 
     it.skip( 'provides a global namespace for schema definitions', function( done ) {
@@ -85,4 +95,5 @@ describe( 'Khyron', function() {
         context.skip( 'has a method `pre( schemaName )` that' );
         context.skip( 'has a method `post( schemaName )` that' );
     } );
+
 } );
