@@ -16,10 +16,21 @@ let expect = chai.expect;
 
 // These tests verify proper API behavior
 describe( 'Khyron', function() {
+    const plainString = 'plain';
     const plainObject = {
-        name: 'plain',
+        name: plainString,
         number: 0
     };
+    const notPlainObjects = [
+        'hello world',
+        0,
+        true,
+        undefined,
+        null,
+        3.14159,
+        [ 'a', 2, false ],
+        () => plainString
+    ];
     const notStrings = [
         plainObject,
         0,
@@ -40,7 +51,14 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        it( 'requires a plain object for the `schemaDefinition` parameter' );
+        it( 'requires a plain object for the `schemaDefinition` parameter', function() {
+            notPlainObjects.forEach( function( value ) {
+                expect( function() {
+                    khyron.define( plainString, value );
+                } ).to.throw( Error, khyron.messages.argSchemaDefNotPlainObject( value ) );
+            } );
+        } );
+
         it( 'throws an error if the schema name is already in the registry' );
     } );
 
