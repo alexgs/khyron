@@ -64,7 +64,7 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
+    context( 'has a function `define( schemaName, schemaDefinition )` that', function() {
         it( 'requires a string for the `schemaName` parameter', function() {
             notStrings.forEach( function( value ) {
                 expect( function() {
@@ -89,7 +89,14 @@ describe( 'Khyron', function() {
             } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
         } );
 
-        it( 'throws an error if the `schemaDefinition` argument is not a valid JSON schema' );
+        it( 'throws an error if the `schemaDefinition` argument is not a valid JSON schema', function() {
+            notStrings.forEach( function( value ) {
+                expect( function() {
+                    khyron.define( 'bad-schema', value );
+                } ).to.throw( Error, khyron.messages.argSchemaDefNotValidJsonSchema( value ) );
+            } );
+        } );
+
         it( 'throws an error if the `schemaDefinition` argument does not compile to a validator function' );
     } );
 

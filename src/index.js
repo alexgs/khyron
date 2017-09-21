@@ -34,6 +34,8 @@ khyron.define = function( schemaName, schemaDefinition ) {
 khyron.messages = {
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
+    argSchemaDefNotValidJsonSchema: function( schemaDefinition ) { return `Argument ${schemaDefinition} is not a `
+        + `valid JSON Schema definition` },
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
     argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `

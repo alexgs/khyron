@@ -16,8 +16,15 @@ let expect = chai.expect;
 
 // These tests verify implementation details; passing tests in `index.js` are the gold standard
 describe( 'The current Khyron implementation', function() {
+    const validSchemaDef1 = {
+        type: 'array',
+        items: [
+            { type: 'number' },
+            { type: 'number' }
+        ]
+    };
 
-    context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
+    context( 'has a function `define( schemaName, schemaDefinition )` that', function() {
         it( 'compiles the schema definition' );
         it( 'stores the compiled schema definition in the registry' );
         it( 'keys the registry by schema name' );
