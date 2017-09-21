@@ -11,6 +11,12 @@ const khyron = function khyronMainFunction() {
 
 };
 
+// Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
+// immutable, any external code will not be able to modify the state used by this module.
+khyron.getRegistryState = function() {
+    return registry;
+};
+
 khyron.define = function( schemaName, schemaDefinition ) {
     if ( !_.isString( schemaName ) ) {
         throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );

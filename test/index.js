@@ -4,6 +4,7 @@
 
 import chai from 'chai';
 import dirtyChai from 'dirty-chai';
+import Immutable from 'immutable';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
@@ -42,8 +43,28 @@ describe( 'Khyron', function() {
         () => plainObject
     ];
 
-    context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
+    context( 'has a function `getRegistryState`, which returns an Immutable Map that', function() {
+        it( 'represents the current state of Khyron\'s registry', function() {
+            const state1 = khyron.getRegistryState();
+            expect( Immutable.Map.isMap( state1 ) ).to.be.true();
+        } );
 
+        it( 'does not change when the registry changes', function() {
+            const state1 = khyron.getRegistryState();
+            khyron.define( plainString, plainObject );
+            const state2 = khyron.getRegistryState();
+            expect( state1 ).to.not.equal( state2 );
+        } );
+
+        it( 'does not affect the state of the registry', function() {
+            let state1 = khyron.getRegistryState();
+            state1 = state1.set( 'some-property', 99 );
+            const state2 = khyron.getRegistryState();
+            expect( state1 ).to.not.equal( state2 );
+        } );
+    } );
+
+    context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
         it( 'requires a string for the `schemaName` parameter', function() {
             notStrings.forEach( function( value ) {
                 expect( function() {
