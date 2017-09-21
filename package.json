@@ -3,7 +3,11 @@
   "version": "0.2.0",
   "description": "Run-time type checking for JavaScript",
   "main": "index.js",
-  "author": "Phillip Gates-Shannon <phil.gs@gmail.com>",
+  "author": {
+    "name": "Phil Gates-Shannon",
+    "email": "phil.gs@gmail.com",
+    "url": "http://philgs.me"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/philgs/khyron.git"
@@ -11,12 +15,14 @@
   "license": "MIT",
   "scripts": {
     "build": "babel src -d dist",
-    "test": "node ./scripts/spawn mocha"
+    "test": "node ./scripts/spawn mocha test/index.js",
+    "test:imp": "node ./scripts/spawn mocha test/implementation.js"
   },
   "engines": {
     "node": ">=6.11.3"
   },
   "devDependencies": {
+    "@types/chai": "^4.0.4",
     "babel-cli": "^6.8.0",
     "babel-plugin-syntax-trailing-function-commas": "^6.22.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -28,7 +34,8 @@
     "dirty-chai": "^2.0.1",
     "mocha": "^3.5.3",
     "sinon": "^3.2.1",
-    "sinon-chai": "^2.8.0"
+    "sinon-chai": "^2.8.0",
+    "types-dirty-chai": "git+https://github.com/philgs/types-dirty-chai.git#67e1a89610"
   },
   "dependencies": {
     "immutable": "^3.8.1"

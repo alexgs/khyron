@@ -14,13 +14,13 @@ chai.use( sinonChai );
 chai.use( dirtyChai );
 let expect = chai.expect;
 
-// These tests verify proper API behavior
-describe( 'Khyron', function() {
+// These tests verify implementation details; passing tests in `index.js` are the gold standard
+describe( 'The current Khyron implementation', function() {
 
     context( 'has a method `define( schemaName, schemaDefinition )` that', function() {
-        it( 'requires a string for the `schemaName` parameter' );
-        it( 'requires a plain object for the `schemaDefinition` parameter' );
-        it( 'throws an error if the schema name is already in the registry' );
+        it( 'compiles the schema definition' );
+        it( 'stores the compiled schema definition in the registry' );
+        it( 'keys the registry by schema name' );
     } );
 
     it.skip( 'provides a global namespace for schema definitions', function( done ) {
