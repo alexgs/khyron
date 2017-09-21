@@ -15,7 +15,8 @@
   "license": "MIT",
   "scripts": {
     "build": "babel src -d dist",
-    "test": "node ./scripts/spawn mocha"
+    "test": "node ./scripts/spawn mocha test/index.js",
+    "test:imp": "node ./scripts/spawn mocha test/implementation.js"
   },
   "engines": {
     "node": ">=6.11.3"
