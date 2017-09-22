@@ -1,5 +1,6 @@
 'use strict';
 
+import Ajv from 'ajv';
 import Immutable from 'immutable';
 import _ from 'lodash';
 
@@ -28,7 +29,13 @@ khyron.define = function( schemaName, schemaDefinition ) {
         throw new Error( khyron.messages.argSchemaNameAlreadyRegistered( schemaName ) );
     }
 
-    registry = registry.set( schemaName, schemaDefinition );
+    const ajv = new Ajv( { addUsedSchema: false } );
+    if ( !_.has( schemaDefinition, 'type' ) || !ajv.validateSchema( schemaDefinition ) ) {
+        throw new Error( khyron.messages.argSchemaDefNotValidJsonSchema( schemaDefinition ) );
+    }
+
+    const validatorFunction = ajv.compile( schemaDefinition );
+    registry = registry.set( schemaName, validatorFunction );
 };
 
 khyron.messages = {

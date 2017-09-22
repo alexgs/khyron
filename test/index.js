@@ -42,6 +42,39 @@ describe( 'Khyron', function() {
         [ 'a', 2, false ],
         () => plainObject
     ];
+    const invalidJsonSchema = [
+        {
+            type: 'bar',
+            jump: 99
+        },
+        { }
+    ];
+    const validSchemaDef1 = {
+        type: 'array',
+        items: [
+            { type: 'number' },
+            { type: 'number' }
+        ]
+    };
+    const validSchemaDef2 = {
+        title: 'Person',
+        type: 'object',
+        properties: {
+            firstName: {
+                type: 'string'
+            },
+            lastName: {
+                type: 'string'
+            },
+            age: {
+                description: 'Age in years',
+                type: 'integer',
+                minimum: 0
+            }
+        },
+        required: [ 'firstName', 'lastName' ]
+    };
+    const validJsonSchema = [ validSchemaDef1, validSchemaDef2 ];
 
     context( 'has a function `getRegistryState`, which returns an Immutable Map that', function() {
         it( 'represents the current state of Khyron\'s registry', function() {
@@ -51,7 +84,7 @@ describe( 'Khyron', function() {
 
         it( 'does not change when the registry changes', function() {
             const state1 = khyron.getRegistryState();
-            khyron.define( plainString, plainObject );
+            khyron.define( plainString, validSchemaDef1 );
             const state2 = khyron.getRegistryState();
             expect( state1 ).to.not.equal( state2 );
         } );
@@ -83,21 +116,28 @@ describe( 'Khyron', function() {
 
         it( 'throws an error if the schema name is already in the registry', function() {
             const name = 'my-awesome-schema';
-            khyron.define( name, plainObject );
+            khyron.define( name, validSchemaDef1 );
             expect( function() {
-                khyron.define( name, plainObject );
+                khyron.define( name, validSchemaDef2 );
             } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
         } );
 
         it( 'throws an error if the `schemaDefinition` argument is not a valid JSON schema', function() {
-            notStrings.forEach( function( value ) {
+            invalidJsonSchema.forEach( function( value ) {
                 expect( function() {
                     khyron.define( 'bad-schema', value );
                 } ).to.throw( Error, khyron.messages.argSchemaDefNotValidJsonSchema( value ) );
             } );
-        } );
 
-        it( 'throws an error if the `schemaDefinition` argument does not compile to a validator function' );
+            // Test that it will accept **valid** JSON schema
+            let schemaNumber = 1;
+            validJsonSchema.forEach( function( schema ) {
+                expect( function() {
+                    khyron.define( 'good-schema-' + schemaNumber, schema )
+                } ).to.not.throw( Error );
+                schemaNumber++;
+            })
+        } );
     } );
 
     it.skip( 'provides a global namespace for schema definitions', function( done ) {
