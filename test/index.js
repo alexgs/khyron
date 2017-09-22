@@ -225,6 +225,13 @@ describe( 'Khyron', function() {
             } );
 
             it.skip( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+
+            it( 'throws an error if `schemaName` is not a string', function() {
+                notStrings.forEach( function( value ) {
+                    expect( function() {
+                        khyron( plainObject, 'method' ).precondition( value );
+                    } ).to.throw( Error, khyron.messages.argSchemaNameNotString( value ) );
+                } );
             } );
 
             it( 'throws an error if `schemaName` is not registered', function() {

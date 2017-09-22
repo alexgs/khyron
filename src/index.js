@@ -18,6 +18,9 @@ class Validator {
     };
 
     precondition( schemaName ) {
+        if ( !_.isString( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+        }
         if ( !registry.has( schemaName ) ) {
             throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
         }
