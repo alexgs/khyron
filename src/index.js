@@ -13,6 +13,9 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
     if ( !_.isPlainObject( targetObject ) ) {
         throw new Error( khyron.messages.argTargetObjectNotObject( targetObject ) );
     }
+    if ( !_.isString( functionName ) ) {
+        throw new Error( khyron.messages.argFunctionNameNotString( functionName ) );
+    }
     return {};
 };
 
@@ -43,6 +46,8 @@ khyron.define = function( schemaName, schemaDefinition ) {
 };
 
 khyron.messages = {
+    argFunctionNameNotString: function( name ) { return `Argument \`functionName\` must be a string, but ${name} is`
+        + `a ${typeof name}` },
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
     argSchemaDefNotValidJsonSchema: function( schemaDefinition ) { return `Argument ${schemaDefinition} is not a `

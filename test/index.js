@@ -165,7 +165,14 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        it( 'throws an error if argument `functionName` is not a string' );
+        it( 'throws an error if argument `functionName` is not a string', function() {
+            notStrings.forEach( function( value ) {
+                expect( function() {
+                    khyron( plainObject, value );
+                } ).to.throw( Error, khyron.messages.argFunctionNameNotString( value ) );
+            } );
+        } );
+
         it( 'throws an error if argument `functionName` is not a property of `targetObject`' );
         it( 'throws an error if the value of the `functionName` property is not a function' );
     } );
