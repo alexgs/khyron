@@ -7,6 +7,7 @@ import dirtyChai from 'dirty-chai';
 import Immutable from 'immutable';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import _ from 'lodash';
 
 import khyron from '../src/index';
 import helpers from './helpers';
@@ -19,6 +20,7 @@ let expect = chai.expect;
 describe( 'Khyron', function() {
     const plainString = 'plain';
     const plainObject = {
+        method: function() { return 144; },
         name: plainString,
         number: 0
     };
@@ -148,7 +150,16 @@ describe( 'Khyron', function() {
         } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
     } );
 
-    context.skip( 'is a function `khyron( targetObject, functionName )` that' );
+    context( 'is a function `khyron( targetObject, functionName )` that', function() {
+        it( 'returns an object', function() {
+            expect( _.isFunction( khyron ) ).to.be.true();
+            const returnValue = khyron( plainObject, 'method' );
+            expect( _.isPlainObject( returnValue ) ).to.be.true();
+        } );
+
+        it( 'throws an error if `functionName` is not a property of `targetObject`' );
+        it( 'throws an error if `functionName` is not a function' );
+    } );
 
     context( 'returns an object that', function() {
         context.skip( 'has a method `precondition( schemaName )` that' );
@@ -156,5 +167,7 @@ describe( 'Khyron', function() {
         context.skip( 'has a method `pre( schemaName )` that' );
         context.skip( 'has a method `post( schemaName )` that' );
     } );
+
+    context.skip( 'accepts the custom JSON Schema keyword "function"' );
 
 } );

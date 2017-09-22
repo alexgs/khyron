@@ -8,8 +8,9 @@ import _ from 'lodash';
 // a hold of it, they cannot change the value that this module references.
 let registry = Immutable.Map();
 
+// Main Khyron function, which begins contract definition chains
 const khyron = function khyronMainFunction() {
-
+    return {};
 };
 
 // Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
