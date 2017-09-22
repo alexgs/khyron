@@ -47,10 +47,13 @@ describe( 'The current Khyron implementation', function() {
 
     context.skip( 'is a function `khyron( targetObject, functionName )` that' );
 
-    context( 'returns an object that', function() {
-        context.skip( 'has a method `precondition( schemaName )` that' );
-        context.skip( 'has a method `postcondition( schemaName )` that' );
-        context.skip( 'has a method `pre( schemaName )` that' );
-        context.skip( 'has a method `post( schemaName )` that' );
+    context( 'returns a validator object that', function() {
+        context( 'has a function `precondition( schemaName )` that', function() {
+            it( 'wraps the target function using Exedore' );
+        } );
+
+        context.skip( 'has a function `postcondition( schemaName )` that' );
+        context.skip( 'has a function `pre( schemaName )` that' );
+        context.skip( 'has a function `post( schemaName )` that' );
     } );
 } );

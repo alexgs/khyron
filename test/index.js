@@ -154,7 +154,8 @@ describe( 'Khyron', function() {
         it( 'returns an object', function() {
             expect( _.isFunction( khyron ) ).to.be.true();
             const returnValue = khyron( plainObject, 'method' );
-            expect( _.isPlainObject( returnValue ) ).to.be.true();
+            // expect( _.isPlainObject( returnValue ) ).to.be.true();
+            expect( _.isObject( returnValue ) ).to.be.true();
         } );
 
         it( 'throws an error if argument `targetObject` is not an object', function() {
@@ -190,11 +191,55 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    context( 'returns an object that', function() {
-        context.skip( 'has a method `precondition( schemaName )` that' );
-        context.skip( 'has a method `postcondition( schemaName )` that' );
-        context.skip( 'has a method `pre( schemaName )` that' );
-        context.skip( 'has a method `post( schemaName )` that' );
+    context( 'returns a validator object that', function() {
+        const mathLibrary = {
+            add( a, b ) {
+                return a + b;
+            },
+
+            multiply( a, b ) {
+                return a * b;
+            }
+        };
+        const TWO_NUMBERS_SCHEMA = 'two-numbers-schema';        // Name for the schema
+        const TWO_NUMBERS_SCHEMA_DEF = {
+            type: 'array',
+            items: [
+                { type: 'number' },
+                { type: 'number' }
+            ]
+        };
+
+        context( 'has a function `precondition( schemaName )` that', function() {
+            it( 'allows the function to execute if the arguments satisfy the schema', function() {
+                khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
+                khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
+
+                const x = 3;
+                const y = 3;
+                const result = mathLibrary.add( x, y );
+                expect( result ).to.equal( x + y );
+            } );
+
+            it.skip( 'throws an error if the arguments do not satisfy the schema', function() {
+            } );
+
+            it.skip( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+            } );
+
+            it( 'throws an error if `schemaName` is not registered', function() {
+                const badSchemaName = 'bad-bad-schema';
+                expect( function() {
+                    khyron( mathLibrary, 'add' ).precondition( badSchemaName );
+                } ).to.throw( Error, khyron.messages.argSchemaNameNotRegistered( badSchemaName ) );
+            } );
+
+            it( 'returns the validator object, enabling chaining' );
+        } );
+
+        context.skip( 'has a function `postcondition( schemaName )` that' );
+        context.skip( 'has a function `pre( schemaName )` that' );
+        context.skip( 'has a function `post( schemaName )` that' );
     } );
 
     context.skip( 'accepts the custom JSON Schema keyword "function"' );

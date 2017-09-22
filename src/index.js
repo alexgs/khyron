@@ -8,6 +8,22 @@ import _ from 'lodash';
 // a hold of it, they cannot change the value that this module references.
 let registry = Immutable.Map();
 
+// Validator Class
+const targetObjects = new WeakMap();
+const functionNames = new WeakMap();
+class Validator {
+    constructor( targetObject, functionName ) {
+        targetObjects.set( this, targetObject );
+        functionNames.set( this, functionName );
+    };
+
+    precondition( schemaName ) {
+        if ( !registry.has( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+        }
+    }
+}
+
 // Main Khyron function, which begins contract definition chains
 const khyron = function khyronMainFunction( targetObject, functionName ) {
     if ( !_.isPlainObject( targetObject ) ) {
@@ -22,7 +38,7 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
     if ( !_.isFunction( targetObject[ functionName ] ) ) {
         throw new Error( khyron.messages.argFunctionNameNotFunction( targetObject, functionName ) );
     }
-    return {};
+    return new Validator( targetObject, functionName );
 };
 
 // Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
@@ -64,10 +80,13 @@ khyron.messages = {
         + `valid JSON Schema definition` },
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
+    argSchemaNameNotRegistered: function( schemaName ) { return `Argument ${schemaName} is not registered `
+        + `as a valid schema` },
     argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `
         + `${schemaName} is a ${typeof schemaName}` },
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
-        + `is a ${typeof target}` }
+        + `is a ${typeof target}` },
+    schemaValidationError: function() { return 'The following schema validation errors occurred: ' }
 };
 
 export default khyron;
