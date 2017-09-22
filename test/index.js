@@ -140,19 +140,12 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    it.skip( 'provides a global namespace for schema definitions', function( done ) {
+    it( 'provides a global namespace for schema definitions', function() {
         const name = 'global-example';
-        const schema = {
-            type: 'array',
-            items: [
-                { type: 'number' },
-                { type: 'number' }
-            ]
-        };
-        khyron.define( name, schema );
+        khyron.define( name, validSchemaDef1 );
         expect( function() {
             helpers.defineGlobalSchema( name );
-        } ).to.throw( Error, 'TODO: error message' );
+        } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
     } );
 
     context.skip( 'is a function `khyron( targetObject, functionName )` that' );
