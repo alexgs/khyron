@@ -179,7 +179,15 @@ describe( 'Khyron', function() {
                 khyron( plainObject, missingMethodName );
             } ).to.throw( Error, khyron.messages.argFunctionNameNotProp( plainObject, missingMethodName ) );
         } );
-        it( 'throws an error if the value of the `functionName` property is not a function' );
+
+        it( 'throws an error if the value of the `functionName` property is not a function', function() {
+            const nonFunctionProperties = [ 'name', 'number' ];
+            nonFunctionProperties.forEach( function( property ) {
+                expect( function() {
+                    khyron( plainObject, property );
+                } ).to.throw( Error, khyron.messages.argFunctionNameNotFunction( plainObject, property ) );
+            } );
+        } );
     } );
 
     context( 'returns an object that', function() {

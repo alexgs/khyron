@@ -19,6 +19,9 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
     if ( !_.hasIn( targetObject, functionName ) ) {
         throw new Error( khyron.messages.argFunctionNameNotProp( targetObject, functionName ) );
     }
+    if ( !_.isFunction( targetObject[ functionName ] ) ) {
+        throw new Error( khyron.messages.argFunctionNameNotFunction( targetObject, functionName ) );
+    }
     return {};
 };
 
@@ -49,6 +52,8 @@ khyron.define = function( schemaName, schemaDefinition ) {
 };
 
 khyron.messages = {
+    argFunctionNameNotFunction: function( target, name ) { return `Expected property "${name}" to be a `
+        + `function, but it is a ${typeof target[name]}` },
     argFunctionNameNotProp: function( target, name ) { return `Expected "${name}" to be a property of target object, `
         + `but target only has the following properties: ` + _.keysIn( target ).join( ', ' ) },
     argFunctionNameNotString: function( name ) { return `Argument \`functionName\` must be a string, but ${name} is`
