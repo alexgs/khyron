@@ -8,8 +8,21 @@ import _ from 'lodash';
 // a hold of it, they cannot change the value that this module references.
 let registry = Immutable.Map();
 
-const khyron = function khyronMainFunction() {
-
+// Main Khyron function, which begins contract definition chains
+const khyron = function khyronMainFunction( targetObject, functionName ) {
+    if ( !_.isPlainObject( targetObject ) ) {
+        throw new Error( khyron.messages.argTargetObjectNotObject( targetObject ) );
+    }
+    if ( !_.isString( functionName ) ) {
+        throw new Error( khyron.messages.argFunctionNameNotString( functionName ) );
+    }
+    if ( !_.hasIn( targetObject, functionName ) ) {
+        throw new Error( khyron.messages.argFunctionNameNotProp( targetObject, functionName ) );
+    }
+    if ( !_.isFunction( targetObject[ functionName ] ) ) {
+        throw new Error( khyron.messages.argFunctionNameNotFunction( targetObject, functionName ) );
+    }
+    return {};
 };
 
 // Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
@@ -39,6 +52,12 @@ khyron.define = function( schemaName, schemaDefinition ) {
 };
 
 khyron.messages = {
+    argFunctionNameNotFunction: function( target, name ) { return `Expected property "${name}" to be a `
+        + `function, but it is a ${typeof target[name]}` },
+    argFunctionNameNotProp: function( target, name ) { return `Expected "${name}" to be a property of target object, `
+        + `but target only has the following properties: ` + _.keysIn( target ).join( ', ' ) },
+    argFunctionNameNotString: function( name ) { return `Argument \`functionName\` must be a string, but ${name} is`
+        + `a ${typeof name}` },
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
     argSchemaDefNotValidJsonSchema: function( schemaDefinition ) { return `Argument ${schemaDefinition} is not a `
@@ -46,7 +65,9 @@ khyron.messages = {
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
     argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `
-        + `${schemaName} is a ${typeof schemaName}` }
+        + `${schemaName} is a ${typeof schemaName}` },
+    argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
+        + `is a ${typeof target}` }
 };
 
 export default khyron;

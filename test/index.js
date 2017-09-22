@@ -7,6 +7,7 @@ import dirtyChai from 'dirty-chai';
 import Immutable from 'immutable';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import _ from 'lodash';
 
 import khyron from '../src/index';
 import helpers from './helpers';
@@ -19,6 +20,7 @@ let expect = chai.expect;
 describe( 'Khyron', function() {
     const plainString = 'plain';
     const plainObject = {
+        method: function() { return 144; },
         name: plainString,
         number: 0
     };
@@ -148,7 +150,45 @@ describe( 'Khyron', function() {
         } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
     } );
 
-    context.skip( 'is a function `khyron( targetObject, functionName )` that' );
+    context( 'is a function `khyron( targetObject, functionName )` that', function() {
+        it( 'returns an object', function() {
+            expect( _.isFunction( khyron ) ).to.be.true();
+            const returnValue = khyron( plainObject, 'method' );
+            expect( _.isPlainObject( returnValue ) ).to.be.true();
+        } );
+
+        it( 'throws an error if argument `targetObject` is not an object', function() {
+            notPlainObjects.forEach( function( value ) {
+                expect( function(  ) {
+                    khyron( value, 'method ');
+                } ).to.throw( Error, khyron.messages.argTargetObjectNotObject( value ) );
+            } );
+        } );
+
+        it( 'throws an error if argument `functionName` is not a string', function() {
+            notStrings.forEach( function( value ) {
+                expect( function() {
+                    khyron( plainObject, value );
+                } ).to.throw( Error, khyron.messages.argFunctionNameNotString( value ) );
+            } );
+        } );
+
+        it( 'throws an error if argument `functionName` is not a property of `targetObject`', function() {
+            const missingMethodName = 'my-awesome-function';
+            expect( function() {
+                khyron( plainObject, missingMethodName );
+            } ).to.throw( Error, khyron.messages.argFunctionNameNotProp( plainObject, missingMethodName ) );
+        } );
+
+        it( 'throws an error if the value of the `functionName` property is not a function', function() {
+            const nonFunctionProperties = [ 'name', 'number' ];
+            nonFunctionProperties.forEach( function( property ) {
+                expect( function() {
+                    khyron( plainObject, property );
+                } ).to.throw( Error, khyron.messages.argFunctionNameNotFunction( plainObject, property ) );
+            } );
+        } );
+    } );
 
     context( 'returns an object that', function() {
         context.skip( 'has a method `precondition( schemaName )` that' );
@@ -156,5 +196,7 @@ describe( 'Khyron', function() {
         context.skip( 'has a method `pre( schemaName )` that' );
         context.skip( 'has a method `post( schemaName )` that' );
     } );
+
+    context.skip( 'accepts the custom JSON Schema keyword "function"' );
 
 } );
