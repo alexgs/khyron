@@ -9,7 +9,10 @@ import _ from 'lodash';
 let registry = Immutable.Map();
 
 // Main Khyron function, which begins contract definition chains
-const khyron = function khyronMainFunction() {
+const khyron = function khyronMainFunction( targetObject, functionName ) {
+    if ( !_.isPlainObject( targetObject ) ) {
+        throw new Error( khyron.messages.argTargetObjectNotObject( targetObject ) );
+    }
     return {};
 };
 
@@ -47,7 +50,9 @@ khyron.messages = {
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
     argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `
-        + `${schemaName} is a ${typeof schemaName}` }
+        + `${schemaName} is a ${typeof schemaName}` },
+    argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
+        + `is a ${typeof target}` }
 };
 
 export default khyron;

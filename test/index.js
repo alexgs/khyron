@@ -157,8 +157,17 @@ describe( 'Khyron', function() {
             expect( _.isPlainObject( returnValue ) ).to.be.true();
         } );
 
-        it( 'throws an error if `functionName` is not a property of `targetObject`' );
-        it( 'throws an error if `functionName` is not a function' );
+        it( 'throws an error if argument `targetObject` is not an object', function() {
+            notPlainObjects.forEach( function( value ) {
+                expect( function(  ) {
+                    khyron( value, 'method ');
+                } ).to.throw( Error, khyron.messages.argTargetObjectNotObject( value ) );
+            } );
+        } );
+
+        it( 'throws an error if argument `functionName` is not a string' );
+        it( 'throws an error if argument `functionName` is not a property of `targetObject`' );
+        it( 'throws an error if the value of the `functionName` property is not a function' );
     } );
 
     context( 'returns an object that', function() {
