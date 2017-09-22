@@ -37,7 +37,11 @@ class Validator {
             }
         };
 
+        // Perform the precondition check before executing the target function, using AOP
         Exedore.before( targetObject, functionName, checkPrecondition );
+
+        // Return the validator instance, to enable chaining
+        return this;
     }
 }
 

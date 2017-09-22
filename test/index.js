@@ -268,7 +268,14 @@ describe( 'Khyron', function() {
                 } ).to.throw( Error, khyron.messages.argSchemaNameNotRegistered( badSchemaName ) );
             } );
 
-            it( 'returns the validator object, enabling chaining' );
+            it( 'returns the validator object, enabling chaining', function() {
+                khyron.reset();
+                khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
+                const validator1 = khyron( mathLibrary, 'add' );
+                const validator2 = validator1.precondition( TWO_NUMBERS_SCHEMA );
+                expect( validator2 ).to.equal( validator1 );
+                expect( validator2 ).to.deep.equal( validator1 );
+            } );
         } );
 
         context.skip( 'has a function `postcondition( schemaName )` that' );
