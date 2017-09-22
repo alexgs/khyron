@@ -210,21 +210,48 @@ describe( 'Khyron', function() {
             ]
         };
 
+        beforeEach( function() {
+            khyron.reset();
+            khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
+            khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
+        } );
+
         context( 'has a function `precondition( schemaName )` that', function() {
             it( 'allows the function to execute if the arguments satisfy the schema', function() {
-                khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
-                khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
-
                 const x = 3;
                 const y = 3;
                 const result = mathLibrary.add( x, y );
                 expect( result ).to.equal( x + y );
             } );
 
-            it.skip( 'throws an error if the arguments do not satisfy the schema', function() {
+            it( 'throws an error if the arguments do not satisfy the schema', function() {
+                const x = 3;
+                const y = '3';
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.add( x, y );
+                } ).to.throw( Error, khyron.messages.schemaValidationError( 'add', 'precondition', [
+                    {
+                        keyword: 'type',
+                        dataPath: '[1]',
+                        schemaPath: '#/items/1/type',
+                        params: { type: 'number' },
+                        message: 'should be number'
+                    }
+                ] ) );
             } );
 
-            it.skip( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+            it( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+                const x = 3;
+                const y = '3';
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.add( x, y );
+                } ).to.throw( Error );
+                expect( result ).to.equal( null );
+            } );
 
             it( 'throws an error if `schemaName` is not a string', function() {
                 notStrings.forEach( function( value ) {

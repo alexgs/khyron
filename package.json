@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "ajv": "^5.2.2",
+    "exedore": "git+https://github.com/philgs/exedore.git#2b51867",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4"
   }

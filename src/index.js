@@ -1,6 +1,7 @@
 'use strict';
 
 import Ajv from 'ajv';
+import Exedore from 'exedore';
 import Immutable from 'immutable';
 import _ from 'lodash';
 
@@ -13,6 +14,7 @@ const targetObjects = new WeakMap();
 const functionNames = new WeakMap();
 class Validator {
     constructor( targetObject, functionName ) {
+        // These arguments meet requirements because they are checked in `khyronMainFunction`
         targetObjects.set( this, targetObject );
         functionNames.set( this, functionName );
     };
@@ -24,6 +26,18 @@ class Validator {
         if ( !registry.has( schemaName ) ) {
             throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
         }
+
+        const functionName = functionNames.get( this );
+        const targetObject = targetObjects.get( this );
+        const validate = registry.get( schemaName );
+        const checkPrecondition = function( target, args ) {
+            const validationResult = validate( args );
+            if ( validationResult === false ) {
+                throw new Error( khyron.messages.schemaValidationError( functionName, 'precondition', validate.errors ) );
+            }
+        };
+
+        Exedore.before( targetObject, functionName, checkPrecondition );
     }
 }
 
@@ -42,12 +56,6 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
         throw new Error( khyron.messages.argFunctionNameNotFunction( targetObject, functionName ) );
     }
     return new Validator( targetObject, functionName );
-};
-
-// Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
-// immutable, any external code will not be able to modify the state used by this module.
-khyron.getRegistryState = function() {
-    return registry;
 };
 
 khyron.define = function( schemaName, schemaDefinition ) {
@@ -70,6 +78,17 @@ khyron.define = function( schemaName, schemaDefinition ) {
     registry = registry.set( schemaName, validatorFunction );
 };
 
+// Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
+// immutable, any external code will not be able to modify the state used by this module.
+khyron.getRegistryState = function() {
+    return registry;
+};
+
+// Reset the registry. Useful for testing, but strongly discouraged in production
+khyron.reset = function() {
+    registry = Immutable.Map();
+};
+
 khyron.messages = {
     argFunctionNameNotFunction: function( target, name ) { return `Expected property "${name}" to be a `
         + `function, but it is a ${typeof target[name]}` },
@@ -89,7 +108,13 @@ khyron.messages = {
         + `${schemaName} is a ${typeof schemaName}` },
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
         + `is a ${typeof target}` },
-    schemaValidationError: function() { return 'The following schema validation errors occurred: ' }
+    schemaValidationError: function( functionName, conditionName, errorList ) {
+        const errorMessages = errorList.map( error => {
+            const index = JSON.parse( error.dataPath ).pop() + 1;
+            return `  - Argument ${index} ${error.message}`;
+        } );
+        return `${_.startCase(conditionName)} of function "${functionName}" failed:\n` + errorMessages.join( '\n' );
+    }
 };
 
 export default khyron;
