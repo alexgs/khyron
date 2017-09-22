@@ -173,7 +173,12 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        it( 'throws an error if argument `functionName` is not a property of `targetObject`' );
+        it( 'throws an error if argument `functionName` is not a property of `targetObject`', function() {
+            const missingMethodName = 'my-awesome-function';
+            expect( function() {
+                khyron( plainObject, missingMethodName );
+            } ).to.throw( Error, khyron.messages.argFunctionNameNotProp( plainObject, missingMethodName ) );
+        } );
         it( 'throws an error if the value of the `functionName` property is not a function' );
     } );
 
