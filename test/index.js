@@ -197,9 +197,17 @@ describe( 'Khyron', function() {
                 return a + b;
             },
 
+            badAdd( a, b ) {
+                return 'a + b';
+            },
+
             multiply( a, b ) {
                 return a * b;
             }
+        };
+        const ONE_NUMBER_SCHEMA = 'one-number-schema';          // Name for the schema
+        const ONE_NUMBER_SCHEMA_DEF = {
+            type: 'number'
         };
         const TWO_NUMBERS_SCHEMA = 'two-numbers-schema';        // Name for the schema
         const TWO_NUMBERS_SCHEMA_DEF = {
@@ -210,13 +218,13 @@ describe( 'Khyron', function() {
             ]
         };
 
-        beforeEach( function() {
-            khyron.reset();
-            khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
-            khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
-        } );
-
         context( 'has a function `precondition( schemaName )` that', function() {
+            beforeEach( function() {
+                khyron.reset();
+                khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
+                khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
+            } );
+
             it( 'allows the function to execute if the arguments satisfy the schema', function() {
                 const x = 3;
                 const y = 3;
@@ -278,7 +286,75 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        context.skip( 'has a function `postcondition( schemaName )` that' );
+        context( 'has a function `postcondition( schemaName )` that', function() {
+            beforeEach( function() {
+                khyron.reset();
+                khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
+                khyron( mathLibrary, 'add' ).postcondition( ONE_NUMBER_SCHEMA );
+                khyron( mathLibrary, 'badAdd' ).postcondition( ONE_NUMBER_SCHEMA );
+            } );
+
+            it.skip( 'allows the function to execute if the arguments satisfy the schema', function() {
+                const x = 3;
+                const y = 3;
+                const result = mathLibrary.add( x, y );
+                expect( result ).to.equal( x + y );
+            } );
+
+            it.skip( 'throws an error if the arguments do not satisfy the schema', function() {
+                const x = 3;
+                const y = '3';
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.add( x, y );
+                } ).to.throw( Error, khyron.messages.schemaValidationError( 'add', 'precondition', [
+                    {
+                        keyword: 'type',
+                        dataPath: '[1]',
+                        schemaPath: '#/items/1/type',
+                        params: { type: 'number' },
+                        message: 'should be number'
+                    }
+                ] ) );
+            } );
+
+            it.skip( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+                const x = 3;
+                const y = '3';
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.add( x, y );
+                } ).to.throw( Error );
+                expect( result ).to.equal( null );
+            } );
+
+            it( 'throws an error if `schemaName` is not a string', function() {
+                notStrings.forEach( function( value ) {
+                    expect( function() {
+                        khyron( plainObject, 'method' ).postcondition( value );
+                    } ).to.throw( Error, khyron.messages.argSchemaNameNotString( value ) );
+                } );
+            } );
+
+            it( 'throws an error if `schemaName` is not registered', function() {
+                const badSchemaName = 'bad-bad-schema';
+                expect( function() {
+                    khyron( mathLibrary, 'add' ).postcondition( badSchemaName );
+                } ).to.throw( Error, khyron.messages.argSchemaNameNotRegistered( badSchemaName ) );
+            } );
+
+            it( 'returns the validator object, enabling chaining', function() {
+                khyron.reset();
+                khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
+                const validator1 = khyron( mathLibrary, 'badAdd' );
+                const validator2 = validator1.postcondition( ONE_NUMBER_SCHEMA );
+                expect( validator2 ).to.equal( validator1 );
+                expect( validator2 ).to.deep.equal( validator1 );
+            } );
+        } );
+
         context.skip( 'has a function `pre( schemaName )` that' );
         context.skip( 'has a function `post( schemaName )` that' );
     } );

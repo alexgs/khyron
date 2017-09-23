@@ -43,6 +43,18 @@ class Validator {
         // Return the validator instance, to enable chaining
         return this;
     }
+
+    postcondition( schemaName ) {
+        if ( !_.isString( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+        }
+        if ( !registry.has( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+        }
+
+        // Return the validator instance, to enable chaining
+        return this;
+    }
 }
 
 // Main Khyron function, which begins contract definition chains
