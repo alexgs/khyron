@@ -52,6 +52,19 @@ class Validator {
             throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
         }
 
+        const functionName = functionNames.get( this );
+        const targetObject = targetObjects.get( this );
+        const validate = registry.get( schemaName );
+        const checkPostcondition = function( target, args, output ) {
+            const validationResult = validate( output );
+            if ( validationResult === false ) {
+                throw new Error( khyron.messages.schemaValidationError( functionName, 'precondition', validate.errors ) );
+            }
+        };
+
+        // Perform the postcondition check after executing the target function, using AOP
+        Exedore.after( targetObject, functionName, checkPostcondition );
+
         // Return the validator instance, to enable chaining
         return this;
     }
@@ -124,7 +137,10 @@ khyron.messages = {
         + `${schemaName} is a ${typeof schemaName}` },
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
         + `is a ${typeof target}` },
+
+    // TODO Split this into separate messages for pre- and post-conditions
     schemaValidationError: function( functionName, conditionName, errorList ) {
+        console.log( '>>> ' + JSON.stringify(errorList) + ' <<<' );
         const errorMessages = errorList.map( error => {
             const index = JSON.parse( error.dataPath ).pop() + 1;
             return `  - Argument ${index} ${error.message}`;

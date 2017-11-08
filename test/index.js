@@ -294,21 +294,23 @@ describe( 'Khyron', function() {
                 khyron( mathLibrary, 'badAdd' ).postcondition( ONE_NUMBER_SCHEMA );
             } );
 
-            it.skip( 'allows the function to execute if the arguments satisfy the schema', function() {
+            it( 'returns the output of the target function if the output satisfies the schema', function() {
                 const x = 3;
                 const y = 3;
                 const result = mathLibrary.add( x, y );
                 expect( result ).to.equal( x + y );
             } );
 
-            it.skip( 'throws an error if the arguments do not satisfy the schema', function() {
+            // TODO Add tests for different output types (e.g. array, plain object, function)
+
+            it( 'throws an error if the the output of the target function does not satisfy the schema', function() {
                 const x = 3;
-                const y = '3';
+                const y = 2;
                 let result = null;
 
                 expect( function() {
-                    result = mathLibrary.add( x, y );
-                } ).to.throw( Error, khyron.messages.schemaValidationError( 'add', 'precondition', [
+                    result = mathLibrary.badAdd( x, y );
+                } ).to.throw( Error, khyron.messages.schemaValidationError( 'badAdd', 'postcondition', [
                     {
                         keyword: 'type',
                         dataPath: '[1]',
