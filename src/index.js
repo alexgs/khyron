@@ -58,7 +58,7 @@ class Validator {
         const checkPostcondition = function( target, args, output ) {
             const validationResult = validate( output );
             if ( validationResult === false ) {
-                throw new Error( khyron.messages.schemaValidationError( functionName, 'precondition', validate.errors ) );
+                throw new Error( khyron.messages.schemaValidationError( functionName, 'postcondition', validate.errors ) );
             }
         };
 
@@ -140,9 +140,24 @@ khyron.messages = {
 
     // TODO Split this into separate messages for pre- and post-conditions
     schemaValidationError: function( functionName, conditionName, errorList ) {
-        console.log( '>>> ' + JSON.stringify(errorList) + ' <<<' );
+        // console.log( '>>> ' + JSON.stringify(errorList) + ' <<<' );
+        function getArgIndex( error ) {
+            try {
+                const zeroBasedIndex = JSON.parse(error.dataPath).pop();
+                return zeroBasedIndex + 1;      // Use 1-based index
+            } catch ( error ) {
+                if ( error instanceof SyntaxError ) {
+                    // Something went wrong when parsing the JSON string
+                    return 1;                   // Assume it's the first argument
+                } else {
+                    // Some non-JSON error, so re-throw
+                    throw error;
+                }
+            }
+        }
+
         const errorMessages = errorList.map( error => {
-            const index = JSON.parse( error.dataPath ).pop() + 1;
+            const index = getArgIndex( error );
             return `  - Argument ${index} ${error.message}`;
         } );
         return `${_.startCase(conditionName)} of function "${functionName}" failed:\n` + errorMessages.join( '\n' );

@@ -326,9 +326,9 @@ describe( 'Khyron', function() {
                 } ).to.throw( Error, khyron.messages.schemaValidationError( 'badAdd', 'postcondition', [
                     {
                         keyword: 'type',
-                        dataPath: '[1]',
-                        schemaPath: '#/items/1/type',
-                        params: { type: 'number' },
+                        dataPath: '',
+                        schemaPath: '#/type',
+                        params: { 'type': 'number' },
                         message: 'should be number'
                     }
                 ] ) );
