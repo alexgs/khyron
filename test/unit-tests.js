@@ -77,25 +77,26 @@ describe( 'Khyron', function() {
     };
     const validJsonSchema = [ validSchemaDef1, validSchemaDef2 ];
 
-    context( 'has a function `getRegistryState`, which returns an Immutable Map that', function() {
-        it( 'represents the current state of Khyron\'s registry', function() {
-            const state1 = khyron.getRegistryState();
-            expect( Immutable.Map.isMap( state1 ) ).to.be.true();
-        } );
+    it( 'provides a global namespace for schema definitions', function() {
+        function defineGlobalSchema( schemaName ) {
+            const schemaDefinition = {
+                type: 'object',
+                properties: {
+                    foo: { type: 'string' },
+                    bar: {
+                        type: 'number',
+                        minimum: 2
+                    }
+                }
+            };
+            khyron.define( schemaName, schemaDefinition );
+        }
 
-        it( 'does not change when the registry changes', function() {
-            const state1 = khyron.getRegistryState();
-            khyron.define( plainString, validSchemaDef1 );
-            const state2 = khyron.getRegistryState();
-            expect( state1 ).to.not.equal( state2 );
-        } );
-
-        it( 'does not affect the state of the registry', function() {
-            let state1 = khyron.getRegistryState();
-            state1 = state1.set( 'some-property', 99 );
-            const state2 = khyron.getRegistryState();
-            expect( state1 ).to.not.equal( state2 );
-        } );
+        const name = 'global-example';
+        khyron.define( name, validSchemaDef1 );
+        expect( function() {
+            defineGlobalSchema( name );
+        } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
     } );
 
     context( 'has a function `define( schemaName, schemaDefinition )` that', function() {
@@ -141,26 +142,25 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    it( 'provides a global namespace for schema definitions', function() {
-        function defineGlobalSchema( schemaName ) {
-            const schemaDefinition = {
-                type: 'object',
-                properties: {
-                    foo: { type: 'string' },
-                    bar: {
-                        type: 'number',
-                        minimum: 2
-                    }
-                }
-            };
-            khyron.define( schemaName, schemaDefinition );
-        }
+    context( 'has a function `getRegistryState`, which returns an Immutable Map that', function() {
+        it( 'represents the current state of Khyron\'s registry', function() {
+            const state1 = khyron.getRegistryState();
+            expect( Immutable.Map.isMap( state1 ) ).to.be.true();
+        } );
 
-        const name = 'global-example';
-        khyron.define( name, validSchemaDef1 );
-        expect( function() {
-            defineGlobalSchema( name );
-        } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
+        it( 'does not change when the registry changes', function() {
+            const state1 = khyron.getRegistryState();
+            khyron.define( plainString, validSchemaDef1 );
+            const state2 = khyron.getRegistryState();
+            expect( state1 ).to.not.equal( state2 );
+        } );
+
+        it( 'does not affect the state of the registry', function() {
+            let state1 = khyron.getRegistryState();
+            state1 = state1.set( 'some-property', 99 );
+            const state2 = khyron.getRegistryState();
+            expect( state1 ).to.not.equal( state2 );
+        } );
     } );
 
     context( 'is a function `khyron( targetObject, functionName )` that', function() {
@@ -334,7 +334,7 @@ describe( 'Khyron', function() {
                 ] ) );
             } );
 
-            it.skip( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
+            it( 'blocks execution of the function if the arguments do not satisfy the schema', function() {
                 const x = 3;
                 const y = '3';
                 let result = null;
