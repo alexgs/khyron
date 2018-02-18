@@ -9,8 +9,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import _ from 'lodash';
 
-import khyron from '../src/index';
-import helpers from './helpers';
+import khyron from '../index';
 
 chai.use( sinonChai );
 chai.use( dirtyChai );
@@ -143,10 +142,24 @@ describe( 'Khyron', function() {
     } );
 
     it( 'provides a global namespace for schema definitions', function() {
+        function defineGlobalSchema( schemaName ) {
+            const schemaDefinition = {
+                type: 'object',
+                properties: {
+                    foo: { type: 'string' },
+                    bar: {
+                        type: 'number',
+                        minimum: 2
+                    }
+                }
+            };
+            khyron.define( schemaName, schemaDefinition );
+        }
+
         const name = 'global-example';
         khyron.define( name, validSchemaDef1 );
         expect( function() {
-            helpers.defineGlobalSchema( name );
+            defineGlobalSchema( name );
         } ).to.throw( Error, khyron.messages.argSchemaNameAlreadyRegistered( name ) );
     } );
 
