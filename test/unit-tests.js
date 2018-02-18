@@ -77,6 +77,10 @@ describe( 'Khyron', function() {
     };
     const validJsonSchema = [ validSchemaDef1, validSchemaDef2 ];
 
+    afterEach( function() {
+        khyron._reset();
+    } );
+
     it( 'provides a global namespace for schema definitions', function() {
         function defineGlobalSchema( schemaName ) {
             const schemaDefinition = {
@@ -233,7 +237,6 @@ describe( 'Khyron', function() {
 
         context( 'has a function `precondition( schemaName )` that', function() {
             beforeEach( function() {
-                khyron.reset();
                 khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
                 khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA );
             } );
@@ -290,7 +293,8 @@ describe( 'Khyron', function() {
             } );
 
             it( 'returns the validator object, enabling chaining', function() {
-                khyron.reset();
+                // Reset Khyron, so it is not affected by the `beforeEach` for this context
+                khyron._reset();
                 khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
                 const validator1 = khyron( mathLibrary, 'add' );
                 const validator2 = validator1.precondition( TWO_NUMBERS_SCHEMA );
@@ -301,7 +305,6 @@ describe( 'Khyron', function() {
 
         context( 'has a function `postcondition( schemaName )` that', function() {
             beforeEach( function() {
-                khyron.reset();
                 khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
                 khyron( mathLibrary, 'add' ).postcondition( ONE_NUMBER_SCHEMA );
                 khyron( mathLibrary, 'badAdd' ).postcondition( ONE_NUMBER_SCHEMA );
@@ -361,7 +364,8 @@ describe( 'Khyron', function() {
             } );
 
             it( 'returns the validator object, enabling chaining', function() {
-                khyron.reset();
+                // Reset Khyron, so it is not affected by the `beforeEach` for this context
+                khyron._reset();
                 khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
                 const validator1 = khyron( mathLibrary, 'badAdd' );
                 const validator2 = validator1.postcondition( ONE_NUMBER_SCHEMA );
@@ -372,7 +376,6 @@ describe( 'Khyron', function() {
 
         context( 'has a function `pre( schemaName )` that', function() {
             beforeEach( function() {
-                khyron.reset();
                 khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
                 khyron( mathLibrary, 'add' ).pre( TWO_NUMBERS_SCHEMA );
             } );
@@ -405,7 +408,6 @@ describe( 'Khyron', function() {
 
         context( 'has a function `post( schemaName )` that', function() {
             beforeEach( function() {
-                khyron.reset();
                 khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
                 khyron( mathLibrary, 'add' ).post( ONE_NUMBER_SCHEMA );
                 khyron( mathLibrary, 'badAdd' ).post( ONE_NUMBER_SCHEMA );
@@ -438,6 +440,8 @@ describe( 'Khyron', function() {
         } );
     } );
 
-    context.skip( 'accepts the custom JSON Schema keyword "function"' );
+    context( 'accepts the custom JSON Schema keyword "function"', function() {
+        it( 'can be used in a precondition' );
+    } );
 
 } );

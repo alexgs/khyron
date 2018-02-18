@@ -121,8 +121,11 @@ khyron.getRegistryState = function() {
     return registry;
 };
 
-// Reset the registry. Useful for testing, but strongly discouraged in production
-khyron.reset = function() {
+/**
+ * Reset the registry. Useful for testing, but strongly discouraged in production.
+ * @private
+ */
+khyron._reset = function() {
     registry = Immutable.Map();
 };
 
