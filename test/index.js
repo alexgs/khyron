@@ -9,7 +9,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import _ from 'lodash';
 
-import khyron from '../src/index';
+import khyron from '../index';
 import helpers from './helpers';
 
 chai.use( sinonChai );
