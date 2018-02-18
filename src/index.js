@@ -44,6 +44,10 @@ class Validator {
         return this;
     }
 
+    pre( schemaName ) {
+        return this.precondition( schemaName );
+    }
+
     postcondition( schemaName ) {
         if ( !_.isString( schemaName ) ) {
             throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
@@ -67,6 +71,10 @@ class Validator {
 
         // Return the validator instance, to enable chaining
         return this;
+    }
+
+    post( schemaName ) {
+        return this.postcondition( schemaName );
     }
 }
 

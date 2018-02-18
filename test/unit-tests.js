@@ -370,8 +370,72 @@ describe( 'Khyron', function() {
             } );
         } );
 
-        context.skip( 'has a function `pre( schemaName )` that' );
-        context.skip( 'has a function `post( schemaName )` that' );
+        context( 'has a function `pre( schemaName )` that', function() {
+            beforeEach( function() {
+                khyron.reset();
+                khyron.define( TWO_NUMBERS_SCHEMA, TWO_NUMBERS_SCHEMA_DEF );
+                khyron( mathLibrary, 'add' ).pre( TWO_NUMBERS_SCHEMA );
+            } );
+
+            it( 'is an alias for the `precondition` function', function() {
+                const x = 3;
+                const y = 3;
+                const result = mathLibrary.add( x, y );
+                expect( result ).to.equal( x + y );
+            } );
+
+            it( 'throws an error if the arguments do not satisfy the schema', function() {
+                const x = 3;
+                const y = '3';
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.add( x, y );
+                } ).to.throw( Error, khyron.messages.schemaValidationError( 'add', 'precondition', [
+                    {
+                        keyword: 'type',
+                        dataPath: '[1]',
+                        schemaPath: '#/items/1/type',
+                        params: { type: 'number' },
+                        message: 'should be number'
+                    }
+                ] ) );
+            } );
+        } );
+
+        context( 'has a function `post( schemaName )` that', function() {
+            beforeEach( function() {
+                khyron.reset();
+                khyron.define( ONE_NUMBER_SCHEMA, ONE_NUMBER_SCHEMA_DEF );
+                khyron( mathLibrary, 'add' ).post( ONE_NUMBER_SCHEMA );
+                khyron( mathLibrary, 'badAdd' ).post( ONE_NUMBER_SCHEMA );
+            } );
+
+            it( 'is an alias for the `postcondition` function', function() {
+                const x = 3;
+                const y = 3;
+                const result = mathLibrary.add( x, y );
+                expect( result ).to.equal( x + y );
+            } );
+
+            it( 'throws an error if the the output of the target function does not satisfy the schema', function() {
+                const x = 3;
+                const y = 2;
+                let result = null;
+
+                expect( function() {
+                    result = mathLibrary.badAdd( x, y );
+                } ).to.throw( Error, khyron.messages.schemaValidationError( 'badAdd', 'postcondition', [
+                    {
+                        keyword: 'type',
+                        dataPath: '',
+                        schemaPath: '#/type',
+                        params: { 'type': 'number' },
+                        message: 'should be number'
+                    }
+                ] ) );
+            } );
+        } );
     } );
 
     context.skip( 'accepts the custom JSON Schema keyword "function"' );
