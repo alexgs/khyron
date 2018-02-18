@@ -18,9 +18,9 @@
   },
   "scripts": {
     "prepublishOnly": "npm run build",
-    "test": "npm run build && mocha test/index.js",
+    "test": "npm run build && mocha test/unit-tests.js",
     "build": "babel src -d dist",
-    "test:imp": "mocha test/implementation.js"
+    "test:imp": "npm run build && mocha test/implementation.js"
   },
   "babel": {
     "presets": [

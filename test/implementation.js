@@ -14,7 +14,7 @@ chai.use( sinonChai );
 chai.use( dirtyChai );
 let expect = chai.expect;
 
-// These tests verify implementation details; passing tests in `index.js` are the gold standard
+// These tests verify implementation details; passing tests in `unit-tests.js` are the gold standard
 describe( 'The current Khyron implementation', function() {
     const validSchemaDef1 = {
         type: 'array',
