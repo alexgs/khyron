@@ -1,6 +1,7 @@
 'use strict';
 
 import Ajv from 'ajv';
+import ajvKeywords from 'ajv-keywords';
 import Exedore from 'exedore';
 import Immutable from 'immutable';
 import _ from 'lodash';
@@ -107,6 +108,7 @@ khyron.define = function( schemaName, schemaDefinition ) {
     }
 
     const ajv = new Ajv( { addUsedSchema: false } );
+    ajvKeywords( ajv, 'instanceof' );
     ajv.addKeyword( 'function', {
         validate: ( schema, data, parentSchema ) => {
             // console.log( `>>> schema: ${JSON.stringify( schema )} <<<` );

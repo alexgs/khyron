@@ -485,4 +485,69 @@ describe( 'Khyron', function() {
             expect( result ).to.equal( x+y );
         } );
     } );
+
+    context( 'works with the "instanceof" keyword', function() {
+        const bufferSchema = {
+            type: 'array',
+            items: [
+                { instanceof: 'Buffer' }
+            ]
+        };
+        const mathLibrary = {
+            add( a, b ) {
+                return a + b;
+            },
+
+            exec: function( a, b, operation ) {
+                return operation( a, b );
+            }
+        };
+        const execSchema = {
+            type: 'array',
+            items: [
+                { type: 'number' },
+                { type: 'number' },
+                { instanceof: 'Function' }
+            ]
+        };
+        const addSchema = {
+            type: 'array',
+            items: [
+                { type: 'number' },
+                { type: 'number' }
+            ]
+        };
+
+        beforeEach( function() {
+            khyron.define( 'add', addSchema );
+            khyron.define( 'buffer', bufferSchema );
+            khyron.define( 'exec', execSchema );
+            khyron( mathLibrary, 'add' ).precondition( 'add' );
+            khyron( mathLibrary, 'exec' ).precondition( 'exec' );
+        } );
+
+        afterEach( function() {
+            khyron._reset();
+        } );
+
+        it( 'can be used in a precondition', function() {
+            const x = 2;
+            const y = 3;
+            const result = mathLibrary.exec( x, y, mathLibrary.add );
+            expect( result ).to.equal( x+y );
+        } );
+
+        it( 'works on a Buffer', function() {
+            const bufLib = {
+                giveMeBuffer( buffer ) {
+                    return Buffer.isBuffer( buffer );
+                }
+            };
+            khyron( bufLib, 'giveMeBuffer' ).pre( 'buffer' );
+
+            const testMe = Buffer.from( 'Give me buffer or give me death!' );
+            const result = bufLib.giveMeBuffer( testMe );
+            expect( result ).to.equal( true );
+        } );
+    } );
 } );
