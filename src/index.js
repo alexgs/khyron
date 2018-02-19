@@ -1,12 +1,82 @@
 'use strict';
 
 import Ajv from 'ajv';
+import Exedore from 'exedore';
 import Immutable from 'immutable';
 import _ from 'lodash';
 
 // Since `registry` is immutable, it acts like a global private variable. Even if someone outside of this module gets
 // a hold of it, they cannot change the value that this module references.
 let registry = Immutable.Map();
+
+// Validator Class
+const targetObjects = new WeakMap();
+const functionNames = new WeakMap();
+class Validator {
+    constructor( targetObject, functionName ) {
+        // These arguments meet requirements because they are checked in `khyronMainFunction`
+        targetObjects.set( this, targetObject );
+        functionNames.set( this, functionName );
+    };
+
+    precondition( schemaName ) {
+        if ( !_.isString( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+        }
+        if ( !registry.has( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+        }
+
+        const functionName = functionNames.get( this );
+        const targetObject = targetObjects.get( this );
+        const validate = registry.get( schemaName );
+        const checkPrecondition = function( target, args ) {
+            const validationResult = validate( args );
+            if ( validationResult === false ) {
+                throw new Error( khyron.messages.schemaValidationError( functionName, 'precondition', validate.errors ) );
+            }
+        };
+
+        // Perform the precondition check before executing the target function, using AOP
+        Exedore.before( targetObject, functionName, checkPrecondition );
+
+        // Return the validator instance, to enable chaining
+        return this;
+    }
+
+    pre( schemaName ) {
+        return this.precondition( schemaName );
+    }
+
+    postcondition( schemaName ) {
+        if ( !_.isString( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+        }
+        if ( !registry.has( schemaName ) ) {
+            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+        }
+
+        const functionName = functionNames.get( this );
+        const targetObject = targetObjects.get( this );
+        const validate = registry.get( schemaName );
+        const checkPostcondition = function( target, args, output ) {
+            const validationResult = validate( output );
+            if ( validationResult === false ) {
+                throw new Error( khyron.messages.schemaValidationError( functionName, 'postcondition', validate.errors ) );
+            }
+        };
+
+        // Perform the postcondition check after executing the target function, using AOP
+        Exedore.after( targetObject, functionName, checkPostcondition );
+
+        // Return the validator instance, to enable chaining
+        return this;
+    }
+
+    post( schemaName ) {
+        return this.postcondition( schemaName );
+    }
+}
 
 // Main Khyron function, which begins contract definition chains
 const khyron = function khyronMainFunction( targetObject, functionName ) {
@@ -22,13 +92,7 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
     if ( !_.isFunction( targetObject[ functionName ] ) ) {
         throw new Error( khyron.messages.argFunctionNameNotFunction( targetObject, functionName ) );
     }
-    return {};
-};
-
-// Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
-// immutable, any external code will not be able to modify the state used by this module.
-khyron.getRegistryState = function() {
-    return registry;
+    return new Validator( targetObject, functionName );
 };
 
 khyron.define = function( schemaName, schemaDefinition ) {
@@ -43,12 +107,39 @@ khyron.define = function( schemaName, schemaDefinition ) {
     }
 
     const ajv = new Ajv( { addUsedSchema: false } );
+    ajv.addKeyword( 'function', {
+        validate: ( schema, data, parentSchema ) => {
+            // console.log( `>>> schema: ${JSON.stringify( schema )} <<<` );
+            // console.log( `>>> parent: ${JSON.stringify( parentSchema )} <<<` );
+            // console.log( `>>> data |   type: ${typeof data} <<<` );
+            // console.log( `>>> data | length: ${data.length} <<<` );
+            // console.log( `>>> data |   code: ${data} <<<` );
+
+            // Don't check length, because it can be masked if wrapped by Khyron
+            return _.isFunction( data );
+        }
+    } );
+
     if ( !_.has( schemaDefinition, 'type' ) || !ajv.validateSchema( schemaDefinition ) ) {
         throw new Error( khyron.messages.argSchemaDefNotValidJsonSchema( schemaDefinition ) );
     }
 
     const validatorFunction = ajv.compile( schemaDefinition );
     registry = registry.set( schemaName, validatorFunction );
+};
+
+// Return a reference to the current state of the registry, primarily for testing purposes. Since the registry is
+// immutable, any external code will not be able to modify the state used by this module.
+khyron.getRegistryState = function() {
+    return registry;
+};
+
+/**
+ * Reset the registry. Useful for testing, but strongly discouraged in production.
+ * @private
+ */
+khyron._reset = function() {
+    registry = Immutable.Map();
 };
 
 khyron.messages = {
@@ -60,14 +151,42 @@ khyron.messages = {
         + `a ${typeof name}` },
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
-    argSchemaDefNotValidJsonSchema: function( schemaDefinition ) { return `Argument ${schemaDefinition} is not a `
-        + `valid JSON Schema definition` },
+    argSchemaDefNotValidJsonSchema: ( schemaDefinition ) => {
+        return `Argument ${JSON.stringify( schemaDefinition )} is not a valid JSON Schema definition`;
+    },
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
+        + `as a valid schema` },
+    argSchemaNameNotRegistered: function( schemaName ) { return `Argument ${schemaName} is not registered `
         + `as a valid schema` },
     argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `
         + `${schemaName} is a ${typeof schemaName}` },
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
-        + `is a ${typeof target}` }
+        + `is a ${typeof target}` },
+
+    // TODO Split this into separate messages for pre- and post-conditions
+    schemaValidationError: function( functionName, conditionName, errorList ) {
+        // console.log( '>>>---<<<\n' + JSON.stringify( errorList, null, 2 ) + '\n>>>---<<<' );
+        function getArgIndex( error ) {
+            try {
+                const zeroBasedIndex = JSON.parse(error.dataPath).pop();
+                return zeroBasedIndex + 1;      // Use 1-based index
+            } catch ( error ) {
+                if ( error instanceof SyntaxError ) {
+                    // Something went wrong when parsing the JSON string
+                    return 1;                   // Assume it's the first argument
+                } else {
+                    // Some non-JSON error, so re-throw
+                    throw error;
+                }
+            }
+        }
+
+        const errorMessages = errorList.map( error => {
+            const index = getArgIndex( error );
+            return `  - Argument ${index} ${error.message}`;
+        } );
+        return `${_.startCase(conditionName)} of function "${functionName}" failed:\n` + errorMessages.join( '\n' );
+    }
 };
 
 export default khyron;
