@@ -441,7 +441,48 @@ describe( 'Khyron', function() {
     } );
 
     context( 'accepts the custom JSON Schema keyword "function"', function() {
-        it( 'can be used in a precondition' );
-    } );
+        const mathLibrary = {
+            add( a, b ) {
+                return a + b;
+            },
 
+            exec: function( a, b, operation ) {
+                return operation( a, b );
+            }
+        };
+        const execSchema = {
+            type: 'array',
+            items: [
+                { type: 'number' },
+                { type: 'number' },
+                // Do **not** use `type` field; this will cause it to fail validation
+                { function: true }
+            ]
+        };
+        const addSchema = {
+            type: 'array',
+            items: [
+                { type: 'number' },
+                { type: 'number' }
+            ]
+        };
+
+        beforeEach( function() {
+            khyron.define( 'add', addSchema );
+            khyron.define( 'exec', execSchema );
+            khyron( mathLibrary, 'add' ).precondition( 'add' );
+            khyron( mathLibrary, 'exec' ).precondition( 'exec' );
+        } );
+
+        afterEach( function() {
+            khyron._reset();
+        } );
+
+        it( 'can be used in a precondition', function() {
+            const x = 2;
+            const y = 3;
+            const result = mathLibrary.exec( x, y, mathLibrary.add );
+            expect( result ).to.equal( x+y );
+        } );
+    } );
 } );

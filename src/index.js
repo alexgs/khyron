@@ -107,6 +107,19 @@ khyron.define = function( schemaName, schemaDefinition ) {
     }
 
     const ajv = new Ajv( { addUsedSchema: false } );
+    ajv.addKeyword( 'function', {
+        validate: ( schema, data, parentSchema ) => {
+            // console.log( `>>> schema: ${JSON.stringify( schema )} <<<` );
+            // console.log( `>>> parent: ${JSON.stringify( parentSchema )} <<<` );
+            // console.log( `>>> data |   type: ${typeof data} <<<` );
+            // console.log( `>>> data | length: ${data.length} <<<` );
+            // console.log( `>>> data |   code: ${data} <<<` );
+
+            // Don't check length, because it can be masked if wrapped by Khyron
+            return _.isFunction( data );
+        }
+    } );
+
     if ( !_.has( schemaDefinition, 'type' ) || !ajv.validateSchema( schemaDefinition ) ) {
         throw new Error( khyron.messages.argSchemaDefNotValidJsonSchema( schemaDefinition ) );
     }
@@ -138,8 +151,9 @@ khyron.messages = {
         + `a ${typeof name}` },
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
-    argSchemaDefNotValidJsonSchema: function( schemaDefinition ) { return `Argument ${schemaDefinition} is not a `
-        + `valid JSON Schema definition` },
+    argSchemaDefNotValidJsonSchema: ( schemaDefinition ) => {
+        return `Argument ${JSON.stringify( schemaDefinition )} is not a valid JSON Schema definition`;
+    },
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
     argSchemaNameNotRegistered: function( schemaName ) { return `Argument ${schemaName} is not registered `
@@ -151,7 +165,7 @@ khyron.messages = {
 
     // TODO Split this into separate messages for pre- and post-conditions
     schemaValidationError: function( functionName, conditionName, errorList ) {
-        // console.log( '>>> ' + JSON.stringify(errorList) + ' <<<' );
+        // console.log( '>>>---<<<\n' + JSON.stringify( errorList, null, 2 ) + '\n>>>---<<<' );
         function getArgIndex( error ) {
             try {
                 const zeroBasedIndex = JSON.parse(error.dataPath).pop();
