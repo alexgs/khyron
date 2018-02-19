@@ -1,5 +1,14 @@
 # Khyron
 
+## To Do
+
+1. Rewrite `README`
+1. ???
+1. Make sure all arguments are present
+1. Reduce boilerplate
+1. Is there a way to wrap a returned function (e.g. such as the one in `Glados.Cookies.getMiddlewareFunction`)? I could add a post-condition for the "get middleware" function, but that doesn't ensure the middleware is used correctly.
+1. Add ability to attach directly to functions. Is this even possible?
+
 ## ConOps
 
 ```javascript
