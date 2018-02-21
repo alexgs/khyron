@@ -69,3 +69,26 @@ khyron( simpleMath, 'multiply' ).precondition( 'two-numbers' );
 
 export default simpleMath;
 ```
+
+## Outline
+
++ Getting started
+    + ~~basic example~~
+    + explain functions
+        + `define`
+        + main
+        + `precondition`
++ Best practices
+    + structuring your code
+    + `types.js` file
+    + inline definitions
++ API
+    + `define`
+    + `khyron`
+    + `precondition`
+    + `pre`
++ Future directions
+    + reduce boilerplate
+    + attach to any function
++ License
++ Contributing
