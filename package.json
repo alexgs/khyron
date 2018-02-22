@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/philgs/khyron.git"
   },
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "engines": {
     "node": ">=6.12.0"
   },
