@@ -139,7 +139,7 @@ export const myTypes = {
 Then you can use it like this:
 
 ```javascript
-import { myTypes } from './types.js';
+import * as types from './types.js';
 
 // Define and export the library object
 const library = {
@@ -150,8 +150,8 @@ export default library;
 // Write functions and attach Khyron
 khyron( library, 'middleware' ).pre( { type: 'Array',
     items: [
-        myTypes.Request,
-        myTypes.Response
+        types.Request,
+        types.Response
     ]
 } );
 function middleware( request, response ) { /* Do middleware stuff */}

@@ -49,7 +49,7 @@ describe( 'Khyron', function() {
         undefined,
         null,
         3.14159,
-        [ 'a', 2, false ],
+        // [ 'a', 2, false ],
         () => plainObject
     ];
     const invalidJsonSchema = [
@@ -244,7 +244,7 @@ describe( 'Khyron', function() {
             ]
         };
 
-        context( 'has a function `precondition`, which', function() {
+        context.only( 'has a function `precondition`, which', function() {
             context( '(when passed a string argument)', function() {
                 beforeEach( function() {
                     khyron.define( TWO_NUMBERS_SCHEMA_NAME, TWO_NUMBERS_SCHEMA_DEF );
@@ -343,6 +343,37 @@ describe( 'Khyron', function() {
                     ] ) );
                 } );
             } );
+
+            context( '(when passed an Array argument)', function() {
+                beforeEach( function() {
+                    khyron( mathLibrary, 'add' ).precondition( TWO_NUMBERS_SCHEMA_DEF.items );
+                } );
+
+                it( 'allows the function to execute if the arguments satisfy the schema', function() {
+                    const x = 3;
+                    const y = 3;
+                    const result = mathLibrary.add( x, y );
+                    expect( result ).to.equal( x + y );
+                } );
+
+                it( 'throws an error if the arguments do not satisfy the schema', function() {
+                    const x = 3;
+                    const y = '3';
+                    let result = null;
+
+                    expect( function() {
+                        result = mathLibrary.add( x, y );
+                    } ).to.throw( Error, khyron.messages.schemaValidationError( 'add', 'precondition', [
+                        {
+                            keyword: 'type',
+                            dataPath: '[1]',
+                            schemaPath: '#/items/1/type',
+                            params: { type: 'number' },
+                            message: 'should be number'
+                        }
+                    ] ) );
+                } );
+            } )
         } );
 
         context( 'has a function `postcondition( schemaName )` that', function() {

@@ -35,8 +35,11 @@ class Validator {
     };
 
     precondition( condition ) {
-        if ( !_.isString( condition ) && !_.isPlainObject( condition ) ) {
+        if ( !_.isString( condition ) && !_.isArray( condition ) && !_.isPlainObject( condition ) ) {
             throw new Error( khyron.messages.invalidCondition( condition ) );
+        }
+        if ( _.isPlainObject( condition ) && process.env.NODE_ENV === 'development' ) {
+            console.log( `Deprecation Warning: Passing a plain object to \`precondition\` is deprecated. Support will be removed in a future version.` );
         }
 
         const functionName = functionNames.get( this );
@@ -46,6 +49,7 @@ class Validator {
         if ( _.isString( condition ) ) {
             schemaName = condition
         } else {
+            // TODO Update to handle when `condition` is an Array
             schemaName = makeInlineSchemaName( targetObject, functionName );
             if ( !registry.has( schemaName ) ) {
                 khyron.define( schemaName, condition );
@@ -71,8 +75,8 @@ class Validator {
         return this;
     }
 
-    pre( schemaName ) {
-        return this.precondition( schemaName );
+    pre( condition ) {
+        return this.precondition( condition );
     }
 
     postcondition( schemaName ) {
@@ -175,7 +179,7 @@ khyron.messages = {
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
         + `is a ${typeof target}` },
     invalidCondition: ( condition ) => {
-        return `Argument \`condition\` must be a string or plain object, but "${condition}" is a ${typeof condition}.`
+        return `Argument \`condition\` must be a string or array, but "${condition}" is a ${typeof condition}.`
     },
     schemaNameNotRegistered: ( schemaName ) => `Schema "${schemaName}" is not registered as a valid condition.`,
 
