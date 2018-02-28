@@ -1,6 +1,8 @@
 'use strict';
 
 import Ajv from 'ajv';
+import ajvKeywords from 'ajv-keywords';
+import crypto from 'crypto';
 import Exedore from 'exedore';
 import Immutable from 'immutable';
 import _ from 'lodash';
@@ -12,6 +14,19 @@ let registry = Immutable.Map();
 // Validator Class
 const targetObjects = new WeakMap();
 const functionNames = new WeakMap();
+
+// Generate a name for a schema that is passed directly as a pre/post-condition
+function makeInlineSchemaName( targetObject, functionName ) {
+    const targetJson = JSON.stringify( targetObject );
+    const hash = crypto.createHash( 'sha256' );
+    hash.update( targetJson );
+    return [
+        'khyron',
+        hash.digest( 'base64' ).slice( 0, 12 ),
+        functionName
+    ].join( '.' );
+}
+
 class Validator {
     constructor( targetObject, functionName ) {
         // These arguments meet requirements because they are checked in `khyronMainFunction`
@@ -19,16 +34,28 @@ class Validator {
         functionNames.set( this, functionName );
     };
 
-    precondition( schemaName ) {
-        if ( !_.isString( schemaName ) ) {
-            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
-        }
-        if ( !registry.has( schemaName ) ) {
-            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+    precondition( condition ) {
+        if ( !_.isString( condition ) && !_.isPlainObject( condition ) ) {
+            throw new Error( khyron.messages.invalidCondition( condition ) );
         }
 
         const functionName = functionNames.get( this );
         const targetObject = targetObjects.get( this );
+
+        let schemaName = null;
+        if ( _.isString( condition ) ) {
+            schemaName = condition
+        } else {
+            schemaName = makeInlineSchemaName( targetObject, functionName );
+            if ( !registry.has( schemaName ) ) {
+                khyron.define( schemaName, condition );
+            }
+        }
+
+        if ( !registry.has( schemaName ) ) {
+            throw new Error( khyron.messages.schemaNameNotRegistered( schemaName ) );
+        }
+
         const validate = registry.get( schemaName );
         const checkPrecondition = function( target, args ) {
             const validationResult = validate( args );
@@ -50,10 +77,10 @@ class Validator {
 
     postcondition( schemaName ) {
         if ( !_.isString( schemaName ) ) {
-            throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+            throw new Error( khyron.messages.invalidCondition( schemaName ) );
         }
         if ( !registry.has( schemaName ) ) {
-            throw new Error( khyron.messages.argSchemaNameNotRegistered( schemaName ) );
+            throw new Error( khyron.messages.schemaNameNotRegistered( schemaName ) );
         }
 
         const functionName = functionNames.get( this );
@@ -97,7 +124,7 @@ const khyron = function khyronMainFunction( targetObject, functionName ) {
 
 khyron.define = function( schemaName, schemaDefinition ) {
     if ( !_.isString( schemaName ) ) {
-        throw new Error( khyron.messages.argSchemaNameNotString( schemaName ) );
+        throw new Error( khyron.messages.invalidCondition( schemaName ) );
     }
     if ( !_.isPlainObject( schemaDefinition ) ) {
         throw new Error( khyron.messages.argSchemaDefNotPlainObject( schemaDefinition ) );
@@ -107,18 +134,7 @@ khyron.define = function( schemaName, schemaDefinition ) {
     }
 
     const ajv = new Ajv( { addUsedSchema: false } );
-    ajv.addKeyword( 'function', {
-        validate: ( schema, data, parentSchema ) => {
-            // console.log( `>>> schema: ${JSON.stringify( schema )} <<<` );
-            // console.log( `>>> parent: ${JSON.stringify( parentSchema )} <<<` );
-            // console.log( `>>> data |   type: ${typeof data} <<<` );
-            // console.log( `>>> data | length: ${data.length} <<<` );
-            // console.log( `>>> data |   code: ${data} <<<` );
-
-            // Don't check length, because it can be masked if wrapped by Khyron
-            return _.isFunction( data );
-        }
-    } );
+    ajvKeywords( ajv, 'instanceof' );
 
     if ( !_.has( schemaDefinition, 'type' ) || !ajv.validateSchema( schemaDefinition ) ) {
         throw new Error( khyron.messages.argSchemaDefNotValidJsonSchema( schemaDefinition ) );
@@ -152,16 +168,16 @@ khyron.messages = {
     argSchemaDefNotPlainObject: function( schemaDefinition ) { return `Argument \`schemaDefinition\` must be a plain `
         + `object, but ${schemaDefinition} is a ${typeof schemaDefinition}` },
     argSchemaDefNotValidJsonSchema: ( schemaDefinition ) => {
-        return `Argument ${JSON.stringify( schemaDefinition )} is not a valid JSON Schema definition`;
+        return `Argument ${JSON.stringify( schemaDefinition )} is not a valid condition (JSON Schema definition).`;
     },
     argSchemaNameAlreadyRegistered: function( schemaName ) { return `Argument ${schemaName} is already registered `
         + `as a valid schema` },
-    argSchemaNameNotRegistered: function( schemaName ) { return `Argument ${schemaName} is not registered `
-        + `as a valid schema` },
-    argSchemaNameNotString: function( schemaName ) { return `Argument \`schemaName\` must be a string, but `
-        + `${schemaName} is a ${typeof schemaName}` },
     argTargetObjectNotObject: function( target ) { return `Argument \`targetObject\` must be an object, but ${target}`
         + `is a ${typeof target}` },
+    invalidCondition: ( condition ) => {
+        return `Argument \`condition\` must be a string or plain object, but "${condition}" is a ${typeof condition}.`
+    },
+    schemaNameNotRegistered: ( schemaName ) => `Schema "${schemaName}" is not registered as a valid condition.`,
 
     // TODO Split this into separate messages for pre- and post-conditions
     schemaValidationError: function( functionName, conditionName, errorList ) {
