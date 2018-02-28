@@ -1,6 +1,6 @@
 {
   "name": "khyron",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Run-time type checking for JavaScript",
   "main": "index.js",
   "author": {
