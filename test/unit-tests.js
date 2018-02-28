@@ -244,7 +244,7 @@ describe( 'Khyron', function() {
             ]
         };
 
-        context.only( 'has a function `precondition`, which', function() {
+        context( 'has a function `precondition`, which', function() {
             context( '(when passed a string argument)', function() {
                 beforeEach( function() {
                     khyron.define( TWO_NUMBERS_SCHEMA_NAME, TWO_NUMBERS_SCHEMA_DEF );

@@ -49,10 +49,21 @@ class Validator {
         if ( _.isString( condition ) ) {
             schemaName = condition
         } else {
-            // TODO Update to handle when `condition` is an Array
             schemaName = makeInlineSchemaName( targetObject, functionName );
+
+            // Allow `condition` to be an Array or an Object (deprecated)
+            let schemaObject = null;
+            if ( _.isArray( condition ) ) {
+                schemaObject = {
+                    type: 'array',
+                    items: condition
+                };
+            } else {
+                schemaObject = condition;
+            }
+
             if ( !registry.has( schemaName ) ) {
-                khyron.define( schemaName, condition );
+                khyron.define( schemaName, schemaObject );
             }
         }
 
